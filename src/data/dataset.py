@@ -80,34 +80,20 @@ def plot_pts(pond_loc_array):
     plt.plot(pond_loc_array[:,0], pond_loc_array[:,1], '.')
     plt.show(block = False)
 
-class PondsDataset():
+class PondsDataset(ponds):
     """
     Build Dataset object using the pond_loc_array. This is used to create the distance matrix.
     """
-# def plot_MP(MP):
-#     """
-#     Plot the pond locations based off of the MultiPoint object
-#     """
-#     x=[]
-#     y=[]
-#     for i in range(len(MP)):
-#         x.append(MP[i].x)
-#         y.append(MP[i].y)
-#     plt.figure()
-#     plt.plot(x, y, '.')
-#     # plt.plot(pond_loc_array, '.')
-#     # xs, ys = self.pond_loc.xy
-#     # fig, axs = plt.subplots()
-#     # axs.fill(xs, ys, alpha=1, fc='b', ec='none')
-#     plt.show()
-
-# def MP_to_np(MP):
-#     """
-#     Convert the MultiPoint object to a numpy array
-#     """
-#     x=[]
-#     y=[]
-#     for i in range(len(MP)):
-#         x.append(MP[i].x)
-#         y.append(MP[i].y)
-#     return np.array([x,y]).T
+    def __init__(self, pond_loc_array, depot_loc):
+        self.depot_loc = depot_loc
+        self.pond_loc = pond_loc_array.insert(0, self.depot_loc, axis=0)
+        self.distance_matrix = self.distance_matrix()
+    def distance_matrix(self):
+        """
+        Creates the distance matrix based on the pond locations.
+        """
+        distance_matrix = np.zeros((len(self.pond_loc), len(self.pond_loc)))
+        for i in range(len(self.pond_loc)):
+            for j in range(len(self.pond_loc)):
+                distance_matrix[i,j] = np.linalg.norm(self.pond_loc[i] - self.pond_loc[j])
+        return distance_matrix
