@@ -7,11 +7,13 @@ This will be achieved by creating waypoint missions for a team of drones which w
 
 ## Methods
 
-A number of algorithms have been designed to solve this type of problem, commonly referred to as the vehicle routing problem. Our task is to visit each pond within a monitoring cycle once and return to the depot, while  minimizing the number of drones required by taking the most efficient paths. 
+A number of algorithms have been designed to solve this type of problem, commonly referred to as the vehicle routing problem. Our task is to visit each pond while  minimizing the number of drones required by minimizing the length of the longest single route. Each drone will start and end its mission at the same depot location.
 
-This repository will implement multiple methods in order to determine the most appropriate for our purpose. They are:
+This repository will implement multiple methods in order to compare and determine the most appropriate for our purpose. They are:
 
 Optimal Path Planning Algorithm with a Back and Forth Pattern [Mukherjee]
 Attention Model [Kool]
-
+Residual Edge-Graph Attention Network [LEI]
 Google OR Tools [Google]
+
+Important considerations are the optimal gap and computational complexity. Aquaculture farms have hundreds of ponds, so using optimal methods to determine the drone routing will not be possible for larger farms.
