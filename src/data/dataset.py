@@ -24,9 +24,6 @@ class polygon():
             p = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
             polygons.append(p.polygon)
 
-        # merged_polygon = polygons[0] 
-        # # for i,poly in enumerate(polygons):
-        #     merged_polygon = merged_polygon.unary_union(poly)
         merged_polygon = unary_union(polygons)
         return merged_polygon
 
