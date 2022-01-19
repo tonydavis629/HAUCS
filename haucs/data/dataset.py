@@ -35,7 +35,7 @@ def plot_poly(poly):
     fig, axs = plt.subplots()
     axs.fill(xs, ys, alpha=1, fc='r', ec='none')
     plt.draw()
-    plt.show(block = False)
+    plt.show(block=False)
 
 class ponds(polygon):
     """
@@ -75,7 +75,7 @@ def plot_pts(pond_loc_array):
 
     plt.figure()
     plt.plot(pond_loc_array[:,0], pond_loc_array[:,1], '.')
-    plt.show(block = False)
+    plt.show(block=False)
 
 class PondsDataset(ponds):
     """

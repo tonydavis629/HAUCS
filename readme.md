@@ -31,3 +31,5 @@ Important considerations are the optimal gap and computational complexity. Aquac
 [3] K. Lei, P. Guo, Y. Wang, X. Wu, and W. Zhao, “Solve routing problems with a residual edge-graph attention neural network,” arXiv:2105.02730 [cs], May 2021, Accessed: Jan. 07, 2022. [Online]. Available: http://arxiv.org/abs/2105.02730
 
 [4] Google. (n.d.). Vehicle routing problem | OR-tools | google developers. Google. Retrieved January 18, 2022, from https://developers.google.com/optimization/routing/vrp 
+
+
