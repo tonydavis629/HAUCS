@@ -41,12 +41,14 @@ class ponds(polygon):
     """
     Use the merged polygon to outline the shape of the ponds, then take a grid of points within the polygon to simulate a fish farm layout.
     """
-    def __init__(self, density, polygon):
+    def __init__(self, density, polygon, depot_loc):
         self.density = density
         self.xlims = [polygon.bounds[0], polygon.bounds[2]]
         self.ylims = [polygon.bounds[1], polygon.bounds[3]]
         self.polygon = polygon
+        self.depot_loc = depot_loc
         self.pond_loc = self.pond_loc()
+        self.distance_matrix = self.distance_matrix()
 
     def pond_loc(self):
         """
@@ -65,8 +67,20 @@ class ponds(polygon):
         for i in range(len(MP)):
             w.append(MP[i].x)
             z.append(MP[i].y)
-        pond_loc_array = np.array([w,z])
-        return pond_loc_array.T
+        pond_loc_array = np.array([w,z]).T
+        pond_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0)
+        return pond_depot
+
+    def distance_matrix(self):
+        """
+        Creates the distance matrix based on the pond locations.
+        """
+        distance_matrix = np.zeros((len(self.pond_loc), len(self.pond_loc)))
+        for i in range(len(self.pond_loc)):
+            for j in range(len(self.pond_loc)):
+                distance_matrix[i,j] = np.linalg.norm(self.pond_loc[i] - self.pond_loc[j])
+        return distance_matrix
+
         
 def plot_pts(pond_loc_array):
     """
@@ -79,18 +93,18 @@ def plot_pts(pond_loc_array):
 
 class PondsDataset(ponds):
     """
-    Build Dataset object using the pond_loc_array. This is used to create the distance matrix.
+    Build PondsDataset which is used to simulate multiple farms. Each farm is made from a ponds object.
     """
-    def __init__(self, pond_loc_array, depot_loc):
-        self.depot_loc = depot_loc
-        self.pond_loc = pond_loc_array.insert(0, self.depot_loc, axis=0)
-        self.distance_matrix = self.distance_matrix()
-    def distance_matrix(self):
+    def __init__(self, farms):
+        self.farms = farms
+
+    def create_dataset(self):
         """
-        Creates the distance matrix based on the pond locations.
+        Create the dataset
         """
-        distance_matrix = np.zeros((len(self.pond_loc), len(self.pond_loc)))
-        for i in range(len(self.pond_loc)):
-            for j in range(len(self.pond_loc)):
-                distance_matrix[i,j] = np.linalg.norm(self.pond_loc[i] - self.pond_loc[j])
-        return distance_matrix
+        self.dataset = []
+        for _ in range(self.farms):
+            self.dataset.append(ponds())
+        return self.dataset
+
+

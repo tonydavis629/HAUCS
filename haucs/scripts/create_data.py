@@ -1,22 +1,22 @@
 import sys
 sys.path.append("..")
-from data.dataset import polygon, ponds, plot_poly, plot_pts
+from data.dataset import PondsDataset, polygon, ponds, plot_poly, plot_pts
 import matplotlib.pyplot as plt
 
-# def main():
-#     polygons = polygon(num_vrtx=4, xlims=[0, 1], ylims=[0, 1]).create_polygons(3)
-#     plot_poly(polygons)
-#     pp = ponds(density=35,polygon=polygons)
-#     pond_cord = pp.pond_loc
-#     plot_pts(pond_cord)
-#     plt.show()
+def main(num_polygons, density, xlims, ylims, depot_loc, show=bool):
+    polygons = polygon(num_vrtx=4, xlims=xlims, ylims=ylims).create_polygons(num_polygons)
+    plot_poly(polygons)
+    pp = ponds(density=density,polygon=polygons, depot_loc=depot_loc)
+    # pond_cord = 
+    print(pp.distance_matrix)
+    plot_pts(pp.pond_loc)
 
-# if __name__ == "__main__":
-#      main()
+    if show==True:
+        plt.show()
 
-polygons = polygon(num_vrtx=4, xlims=[0, 1], ylims=[0, 1]).create_polygons(3)
-plot_poly(polygons)
-pp = ponds(density=35,polygon=polygons)
-pond_cord = pp.pond_loc
-plot_pts(pond_cord)
-plt.show()
+    # pond_ds = PondsDataset(pp)
+    # print(pond_ds.distance_matrix)
+if __name__ == "__main__":
+
+    # main(sys.argv)
+    main(num_polygons=3, density=35, xlims=[0, 1], ylims=[0, 1], depot_loc=[.5,.5], show=True)
