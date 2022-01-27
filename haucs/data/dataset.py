@@ -17,7 +17,7 @@ class polygon():
 
     def create_polygons(self, num_polygons):
         """
-        Create multiple polygons and put them in a list
+        Create multiple polygons and merge them into one
         """
         polygons = []
         for i in range(num_polygons):
@@ -25,7 +25,13 @@ class polygon():
             polygons.append(p.polygon)
 
         merged_polygon = unary_union(polygons)
-        return merged_polygon
+        return merged_polygon, list(merged_polygon.exterior.coords)
+        
+def vertices(multipoly):
+    """
+    Returns the vertices of the multipolygon
+    """
+    return list(multipoly.exterior.coords)
 
 def plot_poly(poly):
     """
@@ -104,7 +110,8 @@ class PondsDataset(ponds):
         """
         self.dataset = []
         for _ in range(self.farms):
-            self.dataset.append(ponds())
+            polygon = polygon(num_vrtx=3, xlims=[0, 1], ylims=[0, 1])
+            self.dataset.append(ponds(density=35, polygon=polygon, depot_loc=[.5,.5]))
         return self.dataset
 
 
