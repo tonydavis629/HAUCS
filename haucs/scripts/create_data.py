@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-from data.dataset import PondsDataset, polygon, ponds, plot_poly, plot_pts, vertices
+from data.dataset import PondsDataset, polygon, ponds, plot_poly, plot_pts
 import matplotlib.pyplot as plt
 
 def main(num_polygons, density, xlims, ylims, depot_loc, show=bool):

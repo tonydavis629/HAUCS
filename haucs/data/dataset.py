@@ -26,12 +26,6 @@ class polygon():
 
         merged_polygon = unary_union(polygons)
         return merged_polygon, list(merged_polygon.exterior.coords)
-        
-def vertices(multipoly):
-    """
-    Returns the vertices of the multipolygon
-    """
-    return list(multipoly.exterior.coords)
 
 def plot_poly(poly):
     """
