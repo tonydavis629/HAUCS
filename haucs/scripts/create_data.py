@@ -13,10 +13,7 @@ def main(num_polygons, density, xlims, ylims, depot_loc, show=bool):
     if show==True:
         plt.show()
 
-    # pond_ds = PondsDataset(pp)
-    # print(pond_ds.distance_matrix)
 if __name__ == "__main__":
 
-    # main(sys.argv)
     main(num_polygons=3, density=35, xlims=[0, 1], ylims=[0, 1], depot_loc=[.5,.5], show=True)
 
