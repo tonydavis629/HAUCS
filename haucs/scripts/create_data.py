@@ -1,21 +1,23 @@
 import sys
 sys.path.append("..")
-from data.dataset import PondsDataset, polygon, ponds, plot_poly, plot_pts
+from data.dataset import PondsDataset, arr2cord, polygon, ponds, plot_poly, plot_pts
 import matplotlib.pyplot as plt
 
 def main(num_polygons, density, xlims, ylims, depot_loc, show=bool):
     polygons = polygon(num_vrtx=4, xlims=xlims, ylims=ylims)
     multipoly, vertices= polygons.create_polygons(num_polygons)
-    plot_poly(multipoly)
     pp = ponds(density=density,polygon=multipoly, depot_loc=depot_loc)
-    plot_pts(pp.loc)
 
     if show==True:
+        plot_poly(multipoly)
+        plot_pts(pp.loc)
         plt.show()
 
-    return pp
+    FAU_cordrange = [(26.36876368992361, 26.368727642878998),(-80.10428560129569, -80.10427487245977)]
+    pond_cord = arr2cord(pp.loc,FAU_cordrange)
+    return pond_cord
 
 if __name__ == "__main__":
 
-    main(num_polygons=3, density=35, xlims=[0, 1], ylims=[0, 1], depot_loc=[.5,.5], show=True)
+    main(num_polygons=3, density=2, xlims=[0, 1], ylims=[0, 1], depot_loc=[.5,.5], show=True)
 
