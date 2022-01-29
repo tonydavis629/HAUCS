@@ -47,7 +47,7 @@ class ponds(polygon):
         self.ylims = [polygon.bounds[1], polygon.bounds[3]]
         self.polygon = polygon
         self.depot_loc = depot_loc
-        self.pond_loc = self.pond_loc()
+        self.loc = self.pond_loc()
         self.distance_matrix = self.distance_matrix()
 
     def pond_loc(self):
@@ -68,17 +68,17 @@ class ponds(polygon):
             w.append(MP[i].x)
             z.append(MP[i].y)
         pond_loc_array = np.array([w,z]).T
-        pond_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0)
-        return pond_depot
+        ponds_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0)
+        return ponds_depot
 
     def distance_matrix(self):
         """
         Creates the distance matrix based on the pond locations.
         """
-        distance_matrix = np.zeros((len(self.pond_loc), len(self.pond_loc)))
-        for i in range(len(self.pond_loc)):
-            for j in range(len(self.pond_loc)):
-                distance_matrix[i,j] = np.linalg.norm(self.pond_loc[i] - self.pond_loc[j])
+        distance_matrix = np.zeros((len(self.loc), len(self.loc)))
+        for i in range(len(self.loc)):
+            for j in range(len(self.loc)):
+                distance_matrix[i,j] = np.linalg.norm(self.loc[i] - self.loc[j])
         return distance_matrix
 
         

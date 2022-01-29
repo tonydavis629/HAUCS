@@ -8,10 +8,12 @@ def main(num_polygons, density, xlims, ylims, depot_loc, show=bool):
     multipoly, vertices= polygons.create_polygons(num_polygons)
     plot_poly(multipoly)
     pp = ponds(density=density,polygon=multipoly, depot_loc=depot_loc)
-    plot_pts(pp.pond_loc)
+    plot_pts(pp.loc)
 
     if show==True:
         plt.show()
+
+    return pp
 
 if __name__ == "__main__":
 
