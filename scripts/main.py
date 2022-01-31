@@ -1,5 +1,5 @@
 from scripts import create_data, polygons
-from mission_planner import planner
+from haucs.mission_planner import planner
 
 if __name__ == '__main__':
 

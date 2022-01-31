@@ -1,4 +1,4 @@
-from data.dataset import PondsDataset, arr2cord, polygon, ponds, plot_poly, plot_pts
+from haucs.data.dataset import PondsDataset, arr2cord, polygon, ponds, plot_poly, plot_pts
 import matplotlib.pyplot as plt
 
 def create_data(num_polygons, density, xlims, ylims, depot_loc, show=bool):
