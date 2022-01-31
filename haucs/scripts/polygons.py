@@ -1,5 +1,3 @@
-import sys
-sys.path.append("..")
 from data.dataset import PondsDataset, polygon, ponds, plot_poly, plot_pts
 import matplotlib.pyplot as plt
 

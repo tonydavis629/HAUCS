@@ -1,9 +1,7 @@
-import sys
-sys.path.append("..")
 from data.dataset import PondsDataset, arr2cord, polygon, ponds, plot_poly, plot_pts
 import matplotlib.pyplot as plt
 
-def main(num_polygons, density, xlims, ylims, depot_loc, show=bool):
+def create_data(num_polygons, density, xlims, ylims, depot_loc, show=bool):
     polygons = polygon(num_vrtx=4, xlims=xlims, ylims=ylims)
     multipoly, vertices= polygons.create_polygons(num_polygons)
     pp = ponds(density=density,polygon=multipoly, depot_loc=depot_loc)
@@ -19,5 +17,5 @@ def main(num_polygons, density, xlims, ylims, depot_loc, show=bool):
 
 if __name__ == "__main__":
 
-    main(num_polygons=3, density=2, xlims=[0, 1], ylims=[0, 1], depot_loc=[.5,.5], show=True)
+    create_data(num_polygons=3, density=2, xlims=[0, 1], ylims=[0, 1], depot_loc=[.5,.5], show=True)
 
