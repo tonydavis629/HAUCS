@@ -62,13 +62,13 @@ class ponds(polygon):
         points = MultiPoint(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
         MP = points.intersection(self.polygon)
 
-        w=[]
-        z=[]
+        x=[]
+        y=[]
         for i in range(len(MP)):
-            w.append(MP[i].x)
-            z.append(MP[i].y)
-        pond_loc_array = np.array([w,z]).T
-        ponds_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0)
+            x.append(MP[i].x)
+            y.append(MP[i].y)
+        pond_loc_array = np.array([x,y]).T
+        ponds_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0) #home location / depot location is set as first row in the array
         return ponds_depot
 
     def distance_matrix(self):

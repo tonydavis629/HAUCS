@@ -2,7 +2,7 @@
 
 It is highly recommended you install HAUCS into a virtual environment. To install HAUCS to your environment, run
 
-    git clone https://github.com/tonydavis629/HAUCS
+    git clone https://github.com/tonydavis629/HAUCS.git
     cd HAUCS
     pip install -e .
 
