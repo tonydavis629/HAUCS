@@ -79,7 +79,7 @@ class ponds(polygon):
         for i in range(len(self.loc)):
             for j in range(len(self.loc)):
                 distance_matrix[i,j] = np.linalg.norm(self.loc[i] - self.loc[j])
-        return distance_matrix
+        return distance_matrix.tolist()
 
         
 def plot_pts(pond_loc_array):
