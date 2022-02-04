@@ -1,7 +1,3 @@
-#points in a field south of engineering west
-# strt=[26.369769461284108, -80.1043028838524]
-# point1= [26.369813757198585, -80.1044878865724]
-# point2=[26.369738025463516, -80.10448948142343]
 from logging import raiseExceptions
 import os
 
@@ -13,12 +9,6 @@ def cord2ardu_wp(cord, alt):
     lon = cord[1]
 
     with open('mission.waypoints','a+') as m:
-        # m.seek(0)
-        # if os.path.getsize('mission.waypoints') == 0: #check if file is empty
-        #     m.write('QGC WPL 110\n') #add waypoints file header
-        #     m.write('0 1 0 0 0 0 0 0 0 0 0 1\n')
-
-        #write waypoint
         m.write("""0 0 0 16 0 0 0 0 """)
         m.write(str(lat) + ' ')
         m.write(str(lon) + ' ')
@@ -38,7 +28,7 @@ def sethome(loc):
             m.write('QGC WPL 110\n') #add waypoints file header
 
             #write home location
-            m.write("""0 1 0 16 0 0 0 0 """)
+            m.write("""0 1 0 16 0 0 0 0 """) #sets home waypoint
             m.write(str(lat) + ' ')
             m.write(str(lon) + ' ')
             m.write(str(alt) + ' ')
@@ -61,9 +51,9 @@ def ponds2waypoints(ponds, alt, drone_model):
             if i == 0:
                 sethome(pond)
             else:
-                cord2ardu_wp(pond, alt)
-                cord2ardu_wp(pond, 0)
-                cord2ardu_wp(pond, alt)
+                cord2ardu_wp(pond, alt) #transition waypoint, at altitude
+                cord2ardu_wp(pond, 0) #sample waypoint, at 0 altitude
+                cord2ardu_wp(pond, alt) #transition waypoint, at altitude
         cord2ardu_wp(ponds[0], 0) #return home
 
     elif drone_model == 'splash':
