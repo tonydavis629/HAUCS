@@ -25,6 +25,7 @@ class polygon():
             polygons.append(p.polygon)
 
         merged_polygon = unary_union(polygons)
+        merged_polygon = unary_union(merged_polygon) #for good measure
         return merged_polygon, list(merged_polygon.exterior.coords)
 
 def plot_poly(poly):
@@ -97,32 +98,18 @@ class PondsDataset(ponds):
     """
     def __init__(self, farms):
         self.farms = farms
+        self.dataset = self.build_dataset()
 
-    def create_dataset(self):
+    def build_dataset(self):
         """
         Create the dataset
         """
-        self.dataset = []
+        dataset = []
         for _ in range(self.farms):
             polygon = polygon(num_vrtx=3, xlims=[0, 1], ylims=[0, 1])
-            self.dataset.append(ponds(density=35, polygon=polygon, depot_loc=[.5,.5]))
-        return self.dataset
+            dataset.append(ponds(density=35, polygon=polygon, depot_loc=[.5,.5]).distance_matrix)
+        with open('data/dataset.txt', 'w') as f:
+            for i in dataset:
+                f.write(str(i) + '\n')
+        return dataset
 
-
-def arr2cord(ponds, cord_range):
-    """
-    Convert a pond locations array to a list of coordinates in the cord_range   
-    """
-    lat_range = cord_range[0]
-    lon_range = cord_range[1]
-    ponds_norm=normalize(ponds)
-
-    lat_cord = ponds_norm[:,0] * (lat_range[1] - lat_range[0]) + lat_range[0]
-    lon_cord = ponds_norm[:,1] * (lon_range[1] - lon_range[0]) + lon_range[0]
-
-    cord = np.array([lat_cord, lon_cord]).T
-    return cord
-    
-def normalize(x):
-    x = np.asarray(x)
-    return (x - x.min()) / (np.ptp(x))
