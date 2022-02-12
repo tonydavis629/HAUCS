@@ -25,8 +25,12 @@ class polygon():
             polygons.append(p.polygon)
 
         merged_polygon = unary_union(polygons)
-        merged_polygon = unary_union(merged_polygon) #for good measure
-        return merged_polygon, list(merged_polygon.exterior.coords)
+        try:
+            vertices = list(merged_polygon.exterior.coords)
+        except: #if there is a polygon which is disconnected
+            merged_polygon = merged_polygon.convex_hull
+            vertices = list(merged_polygon.exterior.coords)
+        return merged_polygon, vertices
 
 def plot_poly(poly):
     """
@@ -96,9 +100,15 @@ class PondsDataset(ponds):
     """
     Build PondsDataset which is used to simulate multiple farms. Each farm is made from a ponds object.
     """
-    def __init__(self, farms):
+    def __init__(self, farms, num_polygons, density, num_vrtx, xlims, ylims, depot_loc):
         self.farms = farms
-        self.dataset = self.build_dataset()
+        self.density = density
+        self.num_vrtx = num_vrtx
+        self.xlims = xlims
+        self.ylims = ylims
+        self.depot_loc = depot_loc
+        self.num_polygons = num_polygons
+        # self.dataset = self.build_dataset()
 
     def build_dataset(self):
         """
@@ -106,10 +116,9 @@ class PondsDataset(ponds):
         """
         dataset = []
         for _ in range(self.farms):
-            polygon = polygon(num_vrtx=3, xlims=[0, 1], ylims=[0, 1])
-            dataset.append(ponds(density=35, polygon=polygon, depot_loc=[.5,.5]).distance_matrix)
-        with open('data/dataset.txt', 'w') as f:
-            for i in dataset:
-                f.write(str(i) + '\n')
+            shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
+            multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
+            ponddata = ponds(density=self.density, polygon=multipoly, depot_loc=self.depot_loc)
+            dataset.append(np.asarray(ponddata.distance_matrix))
         return dataset
 
