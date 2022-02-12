@@ -47,8 +47,7 @@ class ponds(polygon):
     """
     Use the merged polygon to outline the shape of the ponds, then take a grid of points within the polygon to simulate a fish farm layout.
     """
-    def __init__(self, density, num_pts, polygon, depot_loc):
-        self.density = density
+    def __init__(self, num_pts, polygon, depot_loc):
         self.num_pts = num_pts
         self.xlims = [polygon.bounds[0], polygon.bounds[2]]
         self.ylims = [polygon.bounds[1], polygon.bounds[3]]
@@ -63,26 +62,32 @@ class ponds(polygon):
         """
         area = self.polygon.area
         pts = self.num_pts
-        n = self.density
+        dns_fct = -.0083 * pts + 9 #function to determine multiple for density, based on number of points
         xmin, xmax = self.xlims[0], self.xlims[1]
         ymin, ymax = self.ylims[0], self.ylims[1]
-        x = np.arange(np.floor(xmin * n) / n, np.ceil(xmax * n) / n, 1 / n)  
-        y = np.arange(np.floor(ymin * n) / n, np.ceil(ymax * n) / n, 1 / n)
-        points = MultiPoint(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
-        MP = points.intersection(self.polygon)
+        n = pts/area * dns_fct #spacing between points
 
+        valid_loc = False
+        while valid_loc == False: #valid pond locations
+        
+            x = np.arange(np.floor(xmin), np.ceil(xmax), 1 / n)  
+            y = np.arange(np.floor(ymin), np.ceil(ymax), 1 / n)
+            points = MultiPoint(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
+            MP = points.intersection(self.polygon)
+
+            loc = [(pt.x, pt.y) for pt in MP]
+
+            rmv_cnt = 0
+            while len(loc) > pts:
+                loc.pop(np.random.randint(0, len(loc)))
+                rmv_cnt += 1
+                valid_loc = True
+            if rmv_cnt == 0:
+                valid_loc = False
+                n=n*1.1
+            
         x=[]
         y=[]
-
-        loc = [(pt.x, pt.y) for pt in MP]
-
-        rmv_cnt = 0
-        while len(loc) > pts:
-            loc.pop(np.random.randint(0, len(loc)))
-            rmv_cnt += 1
-        if rmv_cnt == 0:
-            raiseExceptions('Not enough points to remove. Increase the density or decrease the number of points.')
-
         for i in loc:
             x.append(i[0])
             y.append(i[1])
@@ -114,11 +119,10 @@ class PondsDataset(ponds):
     """
     Build PondsDataset which is used to simulate multiple farms. Each farm is made from a ponds object.
     """
-    def __init__(self, farms, num_polygons, num_pts, density, num_vrtx, xlims, ylims, depot_loc):
+    def __init__(self, farms, num_polygons, num_pts, num_vrtx, xlims, ylims, depot_loc):
         self.farms = farms
-        self.density = density
         self.num_pts = num_pts
-        self.num_vrtx = num_vrtx
+        self.num_vrtx = 3
         self.xlims = xlims
         self.ylims = ylims
         self.depot_loc = depot_loc
@@ -132,7 +136,7 @@ class PondsDataset(ponds):
         for _ in range(self.farms):
             shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
             multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
-            ponddata = ponds(density=self.density, num_pts=self.num_pts, polygon=multipoly, depot_loc=self.depot_loc)
+            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly, depot_loc=self.depot_loc)
             dataset.append(np.asarray(ponddata.distance_matrix))
         return dataset
 
@@ -144,6 +148,6 @@ class PondsDataset(ponds):
         for _ in range(self.farms):
             shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
             multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
-            ponddata = ponds(density=self.density, polygon=multipoly, depot_loc=self.depot_loc)
+            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly, depot_loc=self.depot_loc)
             dataset.append(np.asarray(ponddata.loc))
         return dataset
