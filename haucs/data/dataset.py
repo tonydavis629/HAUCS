@@ -1,3 +1,4 @@
+from logging import raiseExceptions
 import numpy as np
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon, MultiPoint
@@ -32,7 +33,7 @@ class polygon():
             vertices = list(merged_polygon.exterior.coords)
         return merged_polygon, vertices
 
-def plot_poly(poly):
+def plot_poly(poly): #todo: make as class method
     """
     Plot the polygon
     """
@@ -46,8 +47,9 @@ class ponds(polygon):
     """
     Use the merged polygon to outline the shape of the ponds, then take a grid of points within the polygon to simulate a fish farm layout.
     """
-    def __init__(self, density, polygon, depot_loc):
+    def __init__(self, density, num_pts, polygon, depot_loc):
         self.density = density
+        self.num_pts = num_pts
         self.xlims = [polygon.bounds[0], polygon.bounds[2]]
         self.ylims = [polygon.bounds[1], polygon.bounds[3]]
         self.polygon = polygon
@@ -59,19 +61,32 @@ class ponds(polygon):
         """
         Gives the pond locations based on the polygon and the density.
         """
+        area = self.polygon.area
+        pts = self.num_pts
         n = self.density
         xmin, xmax = self.xlims[0], self.xlims[1]
         ymin, ymax = self.ylims[0], self.ylims[1]
         x = np.arange(np.floor(xmin * n) / n, np.ceil(xmax * n) / n, 1 / n)  
-        y = np.arange(np.floor(ymin * n) / n, np.ceil(ymax * n) / n, 1 / n)  
+        y = np.arange(np.floor(ymin * n) / n, np.ceil(ymax * n) / n, 1 / n)
         points = MultiPoint(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
         MP = points.intersection(self.polygon)
 
         x=[]
         y=[]
-        for i in range(len(MP)):
-            x.append(MP[i].x)
-            y.append(MP[i].y)
+
+        loc = [(pt.x, pt.y) for pt in MP]
+
+        rmv_cnt = 0
+        while len(loc) > pts:
+            loc.pop(np.random.randint(0, len(loc)))
+            rmv_cnt += 1
+        if rmv_cnt == 0:
+            raiseExceptions('Not enough points to remove. Increase the density or decrease the number of points.')
+
+        for i in loc:
+            x.append(i[0])
+            y.append(i[1])
+        
         pond_loc_array = np.array([x,y]).T
         ponds_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0) #home location / depot location is set as first row in the array
         return ponds_depot
@@ -85,30 +100,29 @@ class ponds(polygon):
             for j in range(len(self.loc)):
                 distance_matrix[i,j] = np.linalg.norm(self.loc[i] - self.loc[j])
         return distance_matrix.tolist()
+ 
+    def plot_pts(self):
+        """
+        Plot the pond locations based off of the MultiPoint object
+        """
 
-        
-def plot_pts(pond_loc_array):
-    """
-    Plot the pond locations based off of the MultiPoint object
-    """
-
-    plt.figure()
-    plt.plot(pond_loc_array[:,0], pond_loc_array[:,1], '.')
-    plt.show(block=False)
+        plt.figure()
+        plt.plot(self.loc[:,0], self.loc[:,1], '.')
+        plt.show(block=False)
 
 class PondsDataset(ponds):
     """
     Build PondsDataset which is used to simulate multiple farms. Each farm is made from a ponds object.
     """
-    def __init__(self, farms, num_polygons, density, num_vrtx, xlims, ylims, depot_loc):
+    def __init__(self, farms, num_polygons, num_pts, density, num_vrtx, xlims, ylims, depot_loc):
         self.farms = farms
         self.density = density
+        self.num_pts = num_pts
         self.num_vrtx = num_vrtx
         self.xlims = xlims
         self.ylims = ylims
         self.depot_loc = depot_loc
         self.num_polygons = num_polygons
-        # self.dataset = self.build_dataset()
 
     def build_dm_dataset(self):
         """
@@ -118,7 +132,7 @@ class PondsDataset(ponds):
         for _ in range(self.farms):
             shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
             multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
-            ponddata = ponds(density=self.density, polygon=multipoly, depot_loc=self.depot_loc)
+            ponddata = ponds(density=self.density, num_pts=self.num_pts, polygon=multipoly, depot_loc=self.depot_loc)
             dataset.append(np.asarray(ponddata.distance_matrix))
         return dataset
 
