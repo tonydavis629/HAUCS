@@ -110,7 +110,7 @@ class PondsDataset(ponds):
         self.num_polygons = num_polygons
         # self.dataset = self.build_dataset()
 
-    def build_dataset(self):
+    def build_dm_dataset(self):
         """
         Create the dataset
         """
@@ -122,3 +122,14 @@ class PondsDataset(ponds):
             dataset.append(np.asarray(ponddata.distance_matrix))
         return dataset
 
+    def build_loc_dataset(self):
+        """
+        Create the dataset
+        """
+        dataset = []
+        for _ in range(self.farms):
+            shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
+            multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
+            ponddata = ponds(density=self.density, polygon=multipoly, depot_loc=self.depot_loc)
+            dataset.append(np.asarray(ponddata.loc))
+        return dataset

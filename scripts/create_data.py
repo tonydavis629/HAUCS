@@ -1,4 +1,3 @@
-import haucs
 from haucs.data.dataset import PondsDataset
 import pickle
 import matplotlib.pyplot as plt
@@ -19,7 +18,7 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
 
     # pondset = create_data(farms = 10, num_polygons=3, density=.25, xlims=[0, 100], ylims=[0, 100], depot_loc=[50,50], show=False)
-    data = PondsDataset(farms = 10, num_polygons=3, density=.25, num_vrtx=4, xlims=[0, 100], ylims=[0, 100], depot_loc=[50,50])
+    data = PondsDataset(farms = 100, num_polygons=3, density=.25, num_vrtx=4, xlims=[0, 100], ylims=[0, 100], depot_loc=[50,50])
     dataset = data.build_dataset()
     with open('ponddataset.pkl', 'wb') as f:
         print('Saving dataset to current directory')
