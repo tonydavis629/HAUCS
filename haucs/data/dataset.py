@@ -47,14 +47,22 @@ class ponds(polygon):
     """
     Use the merged polygon to outline the shape of the ponds, then take a grid of points within the polygon to simulate a fish farm layout.
     """
-    def __init__(self, num_pts, polygon, depot_loc):
+    def __init__(self, num_pts, polygon):
         self.num_pts = num_pts
         self.xlims = [polygon.bounds[0], polygon.bounds[2]]
         self.ylims = [polygon.bounds[1], polygon.bounds[3]]
         self.polygon = polygon
-        self.depot_loc = depot_loc
+        self.depot_loc = self.depot_loc()
         self.loc = self.pond_loc()
         self.distance_matrix = self.distance_matrix()
+
+    def depot_loc(self):
+        """
+        Set the depot location
+        """
+        x=np.random.random(1)[0]*(self.xlims[1]-self.xlims[0])+self.xlims[0]
+        y=np.random.random(1)[0]*(self.ylims[1]-self.ylims[0])+self.ylims[0]
+        return [x,y]
 
     def pond_loc(self):
         """
@@ -62,29 +70,20 @@ class ponds(polygon):
         """
         area = self.polygon.area
         pts = self.num_pts
-        dns_fct = -.0083 * pts + 9 #function to determine multiple for density, based on number of points
+        n = np.sqrt(pts/area) #density of points in 1 dimension
+        
         xmin, xmax = self.xlims[0], self.xlims[1]
         ymin, ymax = self.ylims[0], self.ylims[1]
-        n = pts/area * dns_fct #spacing between points
-
-        valid_loc = False
-        while valid_loc == False: #valid pond locations
         
-            x = np.arange(np.floor(xmin), np.ceil(xmax), 1 / n)  
-            y = np.arange(np.floor(ymin), np.ceil(ymax), 1 / n)
-            points = MultiPoint(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
-            MP = points.intersection(self.polygon)
+        x = np.arange(np.floor(xmin), np.ceil(xmax), 1/(n))  
+        y = np.arange(np.floor(ymin), np.ceil(ymax), 1/(n))
+        points = MultiPoint(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
+        MP = points.intersection(self.polygon)
 
-            loc = [(pt.x, pt.y) for pt in MP]
+        loc = [(pt.x, pt.y) for pt in MP]
 
-            rmv_cnt = 0
-            while len(loc) > pts:
-                loc.pop(np.random.randint(0, len(loc)))
-                rmv_cnt += 1
-                valid_loc = True
-            if rmv_cnt == 0:
-                valid_loc = False
-                n=n*1.1
+        while len(loc) > pts:
+            loc.pop(np.random.randint(0, len(loc)))
             
         x=[]
         y=[]
@@ -93,8 +92,8 @@ class ponds(polygon):
             y.append(i[1])
         
         pond_loc_array = np.array([x,y]).T
-        ponds_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0) #home location / depot location is set as first row in the array
-        return ponds_depot
+        # ponds_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0) #home location / depot location is set as first row in the array
+        return pond_loc_array
 
     def distance_matrix(self):
         """
@@ -119,13 +118,12 @@ class PondsDataset(ponds):
     """
     Build PondsDataset which is used to simulate multiple farms. Each farm is made from a ponds object.
     """
-    def __init__(self, farms, num_polygons, num_pts, num_vrtx, xlims, ylims, depot_loc):
+    def __init__(self, farms, num_polygons, num_pts, num_vrtx, xlims, ylims):
         self.farms = farms
         self.num_pts = num_pts
         self.num_vrtx = 3
         self.xlims = xlims
         self.ylims = ylims
-        self.depot_loc = depot_loc
         self.num_polygons = num_polygons
 
     def build_dm_dataset(self):
@@ -136,7 +134,7 @@ class PondsDataset(ponds):
         for _ in range(self.farms):
             shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
             multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
-            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly, depot_loc=self.depot_loc)
+            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
             dataset.append(np.asarray(ponddata.distance_matrix))
         return dataset
 
