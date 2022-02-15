@@ -20,8 +20,11 @@ if __name__ == "__main__":
     # pondset = create_data(farms = 10, num_polygons=3, density=.25, xlims=[0, 100], ylims=[0, 100], depot_loc=[50,50], show=False)
     # data = PondsDataset(farms = 100, num_polygons=3, density=.25, num_vrtx=4, xlims=[0, 100], ylims=[0, 100], depot_loc=[50,50])
     for i in [100,300,500,700]:
-        data = PondsDataset(farms = 100, num_polygons=3, num_pts=i, num_vrtx=4, xlims=[0, 100], ylims=[0, 100], depot_loc=[50,50])
-        dataset = data.build_loc_dataset()
-        with open('ponddataset'+str(i)+'.pkl', 'wb') as f:
-            print('Saving dataset to current directory')
-            pickle.dump(dataset, f, pickle.HIGHEST_PROTOCOL)
+        data = PondsDataset(farms=250, num_pts=i, xlims=[0, 1], ylims=[0, 1])
+        dataset_loc = data.build_loc_dataset()
+        with open('ponddataset_loc'+str(i)+'.pkl', 'wb') as f:
+            pickle.dump(dataset_loc, f, pickle.HIGHEST_PROTOCOL)
+
+        dataset_dm = data.build_dm_dataset()
+        with open('ponddataset_dm'+str(i)+'.pkl', 'wb') as f:
+            pickle.dump(dataset_dm, f, pickle.HIGHEST_PROTOCOL)
