@@ -54,7 +54,7 @@ class ponds(polygon):
         self.polygon = polygon
         self.depot_loc = self.depot_loc()
         self.loc = self.pond_loc()
-        self.distance_matrix = self.distance_matrix()
+        # self.distance_matrix = self.distance_matrix()
 
     def depot_loc(self):
         """
@@ -75,8 +75,8 @@ class ponds(polygon):
         xmin, xmax = self.xlims[0], self.xlims[1]
         ymin, ymax = self.ylims[0], self.ylims[1]
         
-        x = np.arange(np.floor(xmin), np.ceil(xmax), 1/(n))  
-        y = np.arange(np.floor(ymin), np.ceil(ymax), 1/(n))
+        x = np.arange(np.floor(xmin), np.ceil(xmax), .8/(n))  # .8 to make sure spacing is tighter so at least num_pts included
+        y = np.arange(np.floor(ymin), np.ceil(ymax), .8/(n))
         points = MultiPoint(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
         MP = points.intersection(self.polygon)
 
@@ -91,19 +91,21 @@ class ponds(polygon):
             x.append(i[0])
             y.append(i[1])
         
-        pond_loc_array = np.array([x,y]).T
-        # ponds_depot=np.insert(pond_loc_array, 0, self.depot_loc, axis=0) #home location / depot location is set as first row in the array
+        pond_loc_array = np.array([x,y]).T.tolist()
         return pond_loc_array
 
-    def distance_matrix(self):
-        """
-        Creates the distance matrix based on the pond locations.
-        """
-        distance_matrix = np.zeros((len(self.loc), len(self.loc)))
-        for i in range(len(self.loc)):
-            for j in range(len(self.loc)):
-                distance_matrix[i,j] = np.linalg.norm(self.loc[i] - self.loc[j])
-        return distance_matrix.tolist()
+    # def distance_matrix(self):
+    #     """
+    #     Creates the distance matrix based on the pond locations.
+
+    #     Not implemented yet.
+    #     """
+        
+        # distance_matrix = np.zeros((len(self.loc), len(self.loc)))
+        # for i in range(len(self.loc)):
+        #     for j in range(len(self.loc)):
+        #         distance_matrix[i,j] = np.linalg.norm(self.loc[i] - self.loc[j])
+        # return distance_matrix.tolist()
  
     def plot_pts(self):
         """
@@ -118,13 +120,14 @@ class PondsDataset(ponds):
     """
     Build PondsDataset which is used to simulate multiple farms. Each farm is made from a ponds object.
     """
-    def __init__(self, farms, num_polygons, num_pts, num_vrtx, xlims, ylims):
+    def __init__(self, farms, num_polygons, num_pts, xlims, ylims):
         self.farms = farms
+        self.num_polygons = num_polygons
         self.num_pts = num_pts
         self.num_vrtx = 3
         self.xlims = xlims
         self.ylims = ylims
-        self.num_polygons = num_polygons
+        
 
     def build_dm_dataset(self):
         """
@@ -135,7 +138,7 @@ class PondsDataset(ponds):
             shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
             multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
             ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
-            dataset.append(np.asarray(ponddata.distance_matrix))
+            dataset.append(ponddata.distance_matrix)
         return dataset
 
     def build_loc_dataset(self):
@@ -146,6 +149,6 @@ class PondsDataset(ponds):
         for _ in range(self.farms):
             shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
             multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
-            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly, depot_loc=self.depot_loc)
-            dataset.append(np.asarray(ponddata.loc))
+            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
+            dataset.append(ponddata.loc)
         return dataset
