@@ -10,16 +10,28 @@
 
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
-from haucs.data.dataset import ponds, polygon
+
+import pickle
+import numpy as np
+import time
+
+from haucs.data.dataset import PondsDataset
 
 
-def create_data_model(num_polygons=3, density=.01, xlims=[0, 1000], ylims=[0, 1000], depot_loc=[500,500]):
+
+
+def create_data_model(vrp_size):
     """Stores the data for the problem."""
-    polygons = polygon(num_vrtx=4, xlims=xlims, ylims=ylims)
-    multipoly, vertices= polygons.create_polygons(num_polygons)
-    pondset = ponds(density=density,polygon=multipoly, depot_loc=depot_loc)   
+    #test set
+    # filename = 'ponddataset_dm' + str(vrp_size) + '.pkl'
+    # node_dm = pickle.load(open('../../scripts/'+filename, 'rb'))
+    # first = np.array(node_dm[0]) * 1000
+    #check set
+    data = PondsDataset(1, vrp_size, [0,1000], [0,1000])
+    dm = data.build_dm_dataset()
+    first = dm[0]
     data = {}
-    data['distance_matrix'] = pondset.distance_matrix
+    data['distance_matrix'] = first
     data['num_vehicles'] = 4
     data['depot'] = 0
     return data
@@ -50,7 +62,9 @@ def print_solution(data, manager, routing, solution):
 def main():
     """Entry point of the program."""
     # Instantiate the data problem.
-    data = create_data_model()
+    tic = time.perf_counter()
+
+    data = create_data_model(200)
 
     # Create the routing index manager.
     manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']),
@@ -95,9 +109,10 @@ def main():
     # Print solution on console.
     if solution:
         print_solution(data, manager, routing, solution)
+        toc = time.perf_counter()
     else:
         print('No solution found !')
-
+    print(f'Time: {toc - tic}')
 
 if __name__ == '__main__':
     main()

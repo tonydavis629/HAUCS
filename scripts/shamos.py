@@ -7,3 +7,6 @@ def shamos():
     return vertices
 
 
+def test():
+    print('testing')
+    return 'test'

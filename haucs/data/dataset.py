@@ -147,7 +147,7 @@ class PondsDataset(ponds):
         dataset = []
         for _ in range(self.farms):
             shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
-            multipoly,_  = shape.create_polygons(num_polygons=self.num_polygons)
+            multipoly,_  = shape.create_polygons(num_polygons=3)
             ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
             dataset.append(ponddata.loc)
         return dataset
