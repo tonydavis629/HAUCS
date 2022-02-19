@@ -18,7 +18,11 @@ import time
 from haucs.data.dataset import PondsDataset
 
 
-
+def load_data_model(vrp_size):
+    "Load the data from HAUCS"
+    filename = 'GLOP_dataset' + str(vrp_size) + '.pkl'
+    data = pickle.load(open(filename, 'rb'))
+    return data
 
 def create_data_model(vrp_size):
     """Stores the data for the problem."""
@@ -59,12 +63,12 @@ def print_solution(data, manager, routing, solution):
 
 
 
-def main():
+def main(data):
     """Entry point of the program."""
     # Instantiate the data problem.
     tic = time.perf_counter()
 
-    data = create_data_model(200)
+    # data = create_data_model(200)
 
     # Create the routing index manager.
     manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']),
@@ -115,4 +119,7 @@ def main():
     print(f'Time: {toc - tic}')
 
 if __name__ == '__main__':
-    main()
+    data = load_data_model(50)
+    for i in data:
+        print(len(i['distance_matrix']))
+    # main(data)

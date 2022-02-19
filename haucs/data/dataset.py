@@ -101,6 +101,7 @@ class ponds(polygon):
         """
         distance_matrix = np.zeros((self.num_pts, self.num_pts))
         loc = np.array(self.loc)
+
         for i in range(self.num_pts):
             for j in range(self.num_pts):
                 distance_matrix[i,j] = np.sqrt((loc[i,0]-loc[j,0])**2 + (loc[i,1]-loc[j,1])**2)
@@ -115,6 +116,20 @@ class ponds(polygon):
         loc = np.array(self.loc)
         plt.plot(loc[:,0], loc[:,1], '.')
         plt.show(block=False)
+
+def dist_matrix(loc):
+    """
+    Creates the distance matrix based on the pond locations.
+
+    """
+    size = loc.shape[0]
+    distance_matrix = np.zeros((size, size))
+    loc = np.array(loc)
+
+    for i in range(size):
+        for j in range(size):
+            distance_matrix[i,j] = np.sqrt((loc[i,0]-loc[j,0])**2 + (loc[i,1]-loc[j,1])**2)
+    return distance_matrix.tolist()
 
 class PondsDataset(ponds):
     """
@@ -150,6 +165,30 @@ class PondsDataset(ponds):
             multipoly,_  = shape.create_polygons(num_polygons=3)
             ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
             dataset.append(ponddata.loc)
+        return dataset
+
+    def build_GLOP_dataset(self):
+        """
+        Create the dataset for google OR-tools
+        
+        Clean this up!
+        """
+        dataset = []
+        for _ in range(self.farms):
+            shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
+            multipoly,_  = shape.create_polygons(num_polygons=3)
+            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
+            
+            nodes = np.array(ponddata.loc)
+            depot = ponddata.depot_loc
+            node_depot = np.insert(nodes, 0, depot, axis=0)
+            
+            scaled = node_depot*1000
+            dm = dist_matrix(scaled)
+
+            farm_dic = {'distance_matrix': dm, 'depot': 0, 'num_vehicles' : 5 }
+
+            dataset.append(farm_dic)
         return dataset
 
 # def node_data():
