@@ -23,9 +23,7 @@ Optimal Path Planning Algorithm with a Back and Forth Pattern [1]
 
 Attention Transformer Model [2]
 
-Residual Edge-Graph Attention Network [3]
-
-Google OR Tools [4]
+Google OR Tools [3]
 
 Important considerations are the optimal gap and computational complexity. Aquaculture farms have hundreds of ponds, so using optimal methods to determine the drone routing will not be possible for larger farms. Optimality and computation time will be recorded for multiple simulated fish farms and compared.
 
@@ -36,8 +34,6 @@ Important considerations are the optimal gap and computational complexity. Aquac
 
 [2] W. Kool, H. van Hoof, and M. Welling, “ATTENTION, LEARN TO SOLVE ROUTING PROBLEMS!,” p. 25, 2019.
 
-[3] K. Lei, P. Guo, Y. Wang, X. Wu, and W. Zhao, “Solve routing problems with a residual edge-graph attention neural network,” arXiv:2105.02730 [cs], May 2021, Accessed: Jan. 07, 2022. [Online]. Available: http://arxiv.org/abs/2105.02730
-
-[4] Google. (n.d.). Vehicle routing problem | OR-tools | google developers. Google. Retrieved January 18, 2022, from https://developers.google.com/optimization/routing/vrp 
+[3] Google. (n.d.). Vehicle routing problem | OR-tools | google developers. Google. Retrieved January 18, 2022, from https://developers.google.com/optimization/routing/vrp 
 
 
