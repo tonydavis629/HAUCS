@@ -1,25 +1,17 @@
 function p_groups=group_nodes(nodes,numdiv)
     %Input
-    %p: a structure consist of polygon.x (vector of x-coordinates) and polygon.y (vector of y-coordinates) 
-    %numdiv: Number of divisions
+    %nodes : node locations in [x,y] coordinates
+    %numdiv : number of groups to divide the nodes into
     %Output
-    %PXY: a cell array where PX{i,j}.x and PX{i,j} are vectors of x and y coordinates of new polygon in (i,j) grid position
-%     DX=(max(p.x)-min(p.x))/NX;
-%     DY=(max(p.y)-min(p.y))/NY;
-%     i=0;
-%     P=p;
-%     for X=min(p.x)+DX:DX:max(p.x)-DX
-%         i=i+1;
-%         [PX{i}, P]=DIVIDEX(P,X);   
-%     end
-%     PX{NX}=P;
-% 
-%     for i=1:1:NX
-%         j=0;
-%     for Y=min(p.y)+DY:DY:max(p.y)-DY
-%         j=j+1;
-%         [GXY{i,j}, PX{i}]=DIVIDEY(PX{i},Y);     
-%     end
-% 
-%     GXY{i,NY}=PX{i};
+    %p_groups : cell array of polygon vertices which outline each group of nodes
+
+    [idx,C] = kmeans(nodes,numdiv);
+
+    for i=1:length(C)
+        group{i} = [nodes(idx==i,1),nodes(idx==i,2)];
+        k{i} = boundary(nodes(idx==i,1),nodes(idx==i,2),1);
+        p_groups{i}.x = group{i}(k{i},1);
+        p_groups{i}.y = group{i}(k{i},2);
+    end
+
 end
