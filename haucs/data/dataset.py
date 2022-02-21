@@ -55,6 +55,8 @@ class ponds(polygon):
         self.depot_loc = self.depot_loc()
         self.loc = self.pond_loc()
         self.distance_matrix = self.distance_matrix()
+        self.spacing = .8/(np.sqrt(self.num_pts/self.polygon.area))
+        
 
     def depot_loc(self):
         """
@@ -174,14 +176,16 @@ class PondsDataset(ponds):
         vertices = []
         loc = []
         depot = []
+        spacing = []
         for _ in range(self.farms):
             shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
             multipoly,vrtxset  = shape.create_polygons(num_polygons=3)
             ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
+            spacing.append(ponddata.spacing)
             vertices.append(vrtxset)
             depot.append(ponddata.depot_loc)
             loc.append(ponddata.loc)
-        return (vertices, depot, loc)
+        return (vertices, depot, loc, spacing)
 
     def build_ATSP_dataset(self):
         """

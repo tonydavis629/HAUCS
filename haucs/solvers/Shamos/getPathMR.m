@@ -3,7 +3,7 @@
 function [Path] = getPathMR(M, dx, dir)
 % Returns a path for a given CONVEX polygon 
 % Generate lines
-gap_y = 1;
+gap_y = 0;
 
 % polygon limits
 l_limit = min(M(:,1));
@@ -15,7 +15,8 @@ up_limit = max(M(:,2));
 y1 = down_limit - gap_y;
 y2 = up_limit + gap_y;
 
-x1 = l_limit + dx/2;
+% x1 = l_limit + dx/2;
+x1 = l_limit;
 x2 = x1;
 
 %dir = 1;
@@ -31,7 +32,8 @@ enterWP = [0 0];
 exitWP = [0 0];
 lastWP = [0 0];
 
-while(x1 < (r_limit + dx/2)) 
+% while(x1 < (r_limit + dx/2)) 
+while(x1 < (r_limit)) 
    
     LineXY = [x1 y1 x2 y2];
     lines = lines +1;

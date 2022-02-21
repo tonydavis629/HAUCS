@@ -1,5 +1,11 @@
-ponds_scl = ponds .* 1000; %scale the pond locations from 0-1 to 0-1000
-vrtscl = vertices .* 1000;
+% 
+% for i=1:length(ponds)
+% instance = ponds(i)
+clf
+
+ponds_scl = squeeze(ponds(1,:,:)) .* 1000; %scale the pond locations from 0-1 to 0-1000
+vrtscl = vertices{1} .* 1000;
+depotscl = depot(1) * 1000;
 
 M = vrtscl;
 Mshifted = circshift(M,-1);
@@ -9,10 +15,21 @@ y_start=0;
 x_end=-1;
 y_end=0;
 
+dx=spacing(1)*1000;
+transl_spd = 10;
+rot_spd = pi/4;
+
+% x_start = depot(i,1);
+% y_start = depot(i,2);
+% x_end = x_start;
+% y_end = y_start;
+
 p.x=(M(:,1))';
 p.y=(M(:,2))';
 
-p_groups = group_nodes(ponds_scl,3);
+num_drones = 3;
+
+p_groups = group_nodes(ponds_scl,num_drones);
 plot_poly(ponds_scl,vrtscl)
 % plot([p.x p.x(1)],[p.y p.y(1)],'b-');
 
