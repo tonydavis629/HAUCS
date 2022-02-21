@@ -26,11 +26,6 @@ def load_data_model(vrp_size):
 
 def create_data_model(vrp_size):
     """Stores the data for the problem."""
-    #test set
-    # filename = 'ponddataset_dm' + str(vrp_size) + '.pkl'
-    # node_dm = pickle.load(open('../../scripts/'+filename, 'rb'))
-    # first = np.array(node_dm[0]) * 1000
-    #check set
     data = PondsDataset(1, vrp_size, [0,1000], [0,1000])
     dm = data.build_dm_dataset()
     first = dm[0]
@@ -41,10 +36,34 @@ def create_data_model(vrp_size):
     return data
 
 
+def gen_results(data, manager, routing, solution):
+    """Generate results."""
+    # print(f'Objective: {solution.ObjectiveValue()}')
+    max_route_distance = 0
+    total_distance = 0
+    for vehicle_id in range(data['num_vehicles']):
+        index = routing.Start(vehicle_id)
+        plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
+        route_distance = 0
+        while not routing.IsEnd(index):
+            plan_output += ' {} -> '.format(manager.IndexToNode(index))
+            previous_index = index
+            index = solution.Value(routing.NextVar(index))
+            route_distance += routing.GetArcCostForVehicle(
+                previous_index, index, vehicle_id)
+        plan_output += '{}\n'.format(manager.IndexToNode(index))
+        plan_output += 'Distance of the route: {}m\n'.format(route_distance)
+        # print(plan_output)
+        max_route_distance = max(route_distance, max_route_distance)
+        total_distance += route_distance
+    # print('Maximum of the route distances: {}m'.format(max_route_distance))
+    return max_route_distance, total_distance
+
 def print_solution(data, manager, routing, solution):
     """Prints solution on console."""
     print(f'Objective: {solution.ObjectiveValue()}')
     max_route_distance = 0
+    total_distance = 0
     for vehicle_id in range(data['num_vehicles']):
         index = routing.Start(vehicle_id)
         plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
@@ -59,16 +78,14 @@ def print_solution(data, manager, routing, solution):
         plan_output += 'Distance of the route: {}m\n'.format(route_distance)
         print(plan_output)
         max_route_distance = max(route_distance, max_route_distance)
+        total_distance += route_distance
     print('Maximum of the route distances: {}m'.format(max_route_distance))
-
+    return max_route_distance, total_distance
 
 
 def main(data):
     """Entry point of the program."""
     # Instantiate the data problem.
-    tic = time.perf_counter()
-
-    # data = create_data_model(200)
 
     # Create the routing index manager.
     manager = pywrapcp.RoutingIndexManager(len(data['distance_matrix']),
@@ -112,14 +129,29 @@ def main(data):
 
     # Print solution on console.
     if solution:
-        print_solution(data, manager, routing, solution)
+        max_route_dist, total_distance = gen_results(data, manager, routing, solution)
         toc = time.perf_counter()
     else:
         print('No solution found !')
-    print(f'Time: {toc - tic}')
+    return max_route_dist, total_distance
+
 
 if __name__ == '__main__':
-    data = load_data_model(50)
-    for i in data:
-        print(len(i['distance_matrix']))
-    # main(data)
+    for vrp_size in [50, 100, 200]:
+        print(f'Solving for vrp_size: {vrp_size}')
+        data = load_data_model(vrp_size)
+        tic = time.perf_counter()
+        maxrtdist_results, totdist_results = [],[]
+        for sample in data:
+            max_route_dist, total_distance = main(sample)
+            maxrtdist_results.append(max_route_dist)
+            totdist_results.append(total_distance)
+        toc = time.perf_counter()
+        Time = toc - tic
+        print(f'Total time: {Time}')
+        maxrtdist_results = np.array(maxrtdist_results)
+        totdist_results = np.array(totdist_results)
+        avg_maxrt = np.mean(maxrtdist_results)
+        avg_totdist = np.mean(totdist_results)
+        print(f'Average max route distance: {avg_maxrt}')
+        print(f'Average total distance: {avg_totdist}')

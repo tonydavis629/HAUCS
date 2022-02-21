@@ -167,6 +167,37 @@ class PondsDataset(ponds):
             dataset.append(ponddata.loc)
         return dataset
 
+    def build_shamos_dataset(self):
+        """
+        Create the dataset
+        """
+        vertices = []
+        loc = []
+        depot = []
+        for _ in range(self.farms):
+            shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
+            multipoly,vrtxset  = shape.create_polygons(num_polygons=3)
+            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
+            vertices.append(vrtxset)
+            depot.append(ponddata.depot_loc)
+            loc.append(ponddata.loc)
+        return (vertices, depot, loc)
+
+    def build_ATSP_dataset(self):
+        """
+        Create the dataset
+        """
+        dataset = []
+        for _ in range(self.farms):
+            shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
+            multipoly,_  = shape.create_polygons(num_polygons=3)
+            ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
+            depot = ponddata.depot_loc
+            demand = np.ones(self.num_pts)
+            capacity = (self.num_pts/5) + 1
+            dataset.append((depot, ponddata.loc, demand, capacity))
+        return dataset
+
     def build_GLOP_dataset(self):
         """
         Create the dataset for google OR-tools
