@@ -226,8 +226,8 @@ class PondsDataset(ponds):
             dataset.append(farm_dic)
         return dataset
 
-# def node_data():
-#     poly = polygon(num_vrtx=4, xlims=[0, 1], ylims=[0, 1])
-#     multipoly,_=poly.create_polygons(3)
-#     pond = ponds(num_pts=size, polygon = multipoly)
-#     return pond.loc
+def node_data(size, lims):
+    poly = polygon(num_vrtx=4, xlims=[0, lims], ylims=[0, lims])
+    multipoly,_=poly.create_polygons(3)
+    pond = ponds(num_pts=size, polygon = multipoly)
+    return pond.loc
