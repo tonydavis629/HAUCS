@@ -1,8 +1,4 @@
 function pathplan = find_nodepath(path,nodes,dx)
-%paths_list is a cell array of optimal paths
-%nodes is the pond locations
-%path is a cell array of ordered nodes to visit
-    
     vx = zeros(4,2);
     assigned = zeros(size(nodes,1),1);
     node_leg = cell(1,length(path)-1);
