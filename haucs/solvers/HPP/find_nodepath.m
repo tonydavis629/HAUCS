@@ -1,64 +1,8 @@
-% for path in optimal_paths
-    % for step in n
-    %   pond <- compare dsearchn step and ponds 
 function pathplan = find_nodepath(path,nodes,dx)
 %paths_list is a cell array of optimal paths
 %nodes is the pond locations
 %path is a cell array of ordered nodes to visit
     
-%     for i=1:length(paths_list)
-%         nodelist=zeros(length(paths_list{i}));
-%         idxlist=zeros(length(paths_list{i}));
-%         k = 0;
-%         for j=1:length(paths_list{i})
-%             pathpt = paths_list{i}(j,:);
-%             idx = knnsearch(nodes,pathpt);
-%             if ~any(idxlist(:) == idx)
-%                 nodelist(k) = nodes(idx,:);
-%                 idxlist(k) = idx;
-%                 k = k + 1;
-%             end
-%         end
-%         path{i} = nodelist;
-%     end
-
-%     search_dst = dx;
-%     while ~isempty(nodes) %while nodes are still unassigned
-%         for i=1:length(paths_list) % for each set of paths
-%             nodelist=zeros(length(paths_list{i}));
-%             k = 0;
-%             for j=1:length(paths_list{i})
-%                 pathpt = paths_list{i}(j,:);
-%                 idx = knnsearch(nodes,pathpt);
-%                 if ~any(idxlist(:) == idx)
-%                     nodelist(k) = nodes(idx,:);
-%                     idxlist(k) = idx;
-%                     k = k + 1;
-%                 end
-%             end
-%             path{i} = nodelist;
-%         end
-%         search_dist = search_dist + dx;
-%     end
-
-% calculate dist from all lines to all nodes
-% assign node to path with smallest dist
-
-% 
-%     for j=1:length(path)-1
-%         v1 = path(j);
-%         v2 = path(j+1);
-%         dist_mat{j} = point_to_line(nodes, v1, v2);
-%     end
-%     while ~isempty(nodes)
-%         % step through each leg
-%         % assign those below threshold to that leg
-%         nodes(idx)=[];
-%     end
-%     figure
-%     hold on
-%     plot(nodes(:,1),nodes(:,2),'o')
-
     vx = zeros(4,2);
     assigned = zeros(size(nodes,1),1);
     node_leg = cell(1,length(path)-1);
@@ -85,8 +29,6 @@ function pathplan = find_nodepath(path,nodes,dx)
         vx(2,:) = bl  + v1;
         vx(3,:) = br + v2; 
         vx(4,:) = tr + v2;
-%         vx = convhull(vx);
-%         plot(vx(:,1),vx(:,2),'g*')
 
         in_path = inpolygon(nodes(:,1),nodes(:,2),vx(:,1),vx(:,2));
         in_unass = in_path & ~assigned; %nodes in path and unassigned

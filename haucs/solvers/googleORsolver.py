@@ -137,7 +137,7 @@ def main(data):
 
 
 if __name__ == '__main__':
-    for vrp_size in [50, 100, 200]:
+    for vrp_size in [50,100]:
         print(f'Solving for vrp_size: {vrp_size}')
         data = load_data_model(vrp_size)
         tic = time.perf_counter()
@@ -147,8 +147,8 @@ if __name__ == '__main__':
             maxrtdist_results.append(max_route_dist)
             totdist_results.append(total_distance)
         toc = time.perf_counter()
-        Time = toc - tic
-        print(f'Total time: {Time}')
+        avg_time = (toc - tic)/len(data)
+        print(f'Average time: {avg_time}')
         maxrtdist_results = np.array(maxrtdist_results)
         totdist_results = np.array(totdist_results)
         avg_maxrt = np.mean(maxrtdist_results)
