@@ -1,12 +1,15 @@
 tic
 
 num_drones = 5;
-makeplot = false;
+makeplot = true;
 
 total_cost_all=zeros(size(ponds,1),1);
 max_path_cost_all = zeros(size(ponds,1),1);
+all_vehroute = cell(size(ponds,1),1);
+itt = 21;
 
-for iter=1:size(ponds,1)
+% for iter=1:size(ponds,1)
+for iter=itt:1:itt
 %     disp(iter)
 % for iter=23:1:23
       
@@ -50,7 +53,7 @@ for iter=1:size(ponds,1)
     
     % hold off
     
-    
+    nodeidx_list = cell(num_drones,1);
     paths_list = cell(num_drones,1);
     
     for i=1:1:size(p_groups,2)
@@ -123,8 +126,11 @@ for iter=1:size(ponds,1)
         nodegroup = ponds_scl(nodeidx,:);
     
         path = find_nodepath(optimal_pathc,nodegroup,dx);
+        [~,nodeidx]=ismember(path,ponds_scl,'rows');
+        nodeidx_list{i} = nodeidx; %match idx
         path = [depotscl; path; depotscl];
         paths_list{i} = path; 
+%       
         
         
     
@@ -132,7 +138,13 @@ for iter=1:size(ponds,1)
     
     total_cost = 0;
     max_path_cost = 0;
+    vehroute = [];
     for i=1:length(paths_list)
+        if i ~= length(paths_list)
+            vehroute = [vehroute; nodeidx_list{i}; 0];
+        elseif i == length(paths_list)
+            vehroute = [vehroute; nodeidx_list{i}];
+        end
         path_cost = 0;
         for j=1:(length(paths_list{i})-1)
             fir=paths_list{i}(j,:);
@@ -146,6 +158,7 @@ for iter=1:size(ponds,1)
         end
     end
     
+    all_vehroute{iter} = vehroute.';
     total_cost_all(iter)=total_cost;
     max_path_cost_all(iter) = max_path_cost;
 
@@ -154,11 +167,11 @@ end
 time = toc;
 avg_total_cost = mean(total_cost_all);
 avg_max_path = mean(max_path_cost_all);
-avg_time = time / length(ponds);
 
 fprintf('avg_total_cost = %f\n',avg_total_cost)
 fprintf('avg_max_path = %f\n',avg_max_path)
-fprintf('avg_time = %f\n',avg_time)
+fprintf('time = %f\n',time)
 
-
+routes = cell2mat(all_vehroute);
+mat2np(routes,'HPProutes.pkl','int8')
 

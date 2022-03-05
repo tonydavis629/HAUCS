@@ -41,6 +41,7 @@ def gen_results(data, manager, routing, solution):
     # print(f'Objective: {solution.ObjectiveValue()}')
     max_route_distance = 0
     total_distance = 0
+    routes = []
     for vehicle_id in range(data['num_vehicles']):
         index = routing.Start(vehicle_id)
         plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
@@ -54,10 +55,38 @@ def gen_results(data, manager, routing, solution):
         plan_output += '{}\n'.format(manager.IndexToNode(index))
         plan_output += 'Distance of the route: {}m\n'.format(route_distance)
         # print(plan_output)
+        routes.append(plan_output)
         max_route_distance = max(route_distance, max_route_distance)
         total_distance += route_distance
     # print('Maximum of the route distances: {}m'.format(max_route_distance))
-    return max_route_distance, total_distance
+    return max_route_distance, total_distance, routes
+
+def gen_routes(data, manager, routing, solution):
+    """Generate results."""
+    # print(f'Objective: {solution.ObjectiveValue()}')
+    max_route_distance = 0
+    total_distance = 0
+    routes = []
+    plan_output = []
+    for vehicle_id in range(data['num_vehicles']):
+        index = routing.Start(vehicle_id)
+        # plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
+        route_distance = 0
+        
+        while not routing.IsEnd(index):
+            plan_output.append(manager.IndexToNode(index))
+            previous_index = index
+            index = solution.Value(routing.NextVar(index))
+            route_distance += routing.GetArcCostForVehicle(
+                previous_index, index, vehicle_id)
+        # plan_output += '{}\n'.format(manager.IndexToNode(index))
+        # plan_output += 'Distance of the route: {}m\n'.format(route_distance)
+        # print(plan_output)
+        routes.append(plan_output)
+        max_route_distance = max(route_distance, max_route_distance)
+        total_distance += route_distance
+    # print('Maximum of the route distances: {}m'.format(max_route_distance))
+    return max_route_distance, total_distance, routes
 
 def print_solution(data, manager, routing, solution):
     """Prints solution on console."""
@@ -129,29 +158,33 @@ def main(data):
 
     # Print solution on console.
     if solution:
-        max_route_dist, total_distance = gen_results(data, manager, routing, solution)
+        max_route_dist, total_distance, routes = gen_routes(data, manager, routing, solution)
         toc = time.perf_counter()
     else:
         print('No solution found !')
-    return max_route_dist, total_distance
+    return max_route_dist, total_distance, routes
 
 
 if __name__ == '__main__':
-    for vrp_size in [50,100]:
+    for vrp_size in [100]:
         print(f'Solving for vrp_size: {vrp_size}')
-        data = load_data_model(vrp_size)
         tic = time.perf_counter()
-        maxrtdist_results, totdist_results = [],[]
+        data = load_data_model(vrp_size)
+        maxrtdist_results, totdist_results, routeslist = [],[],[]
         for sample in data:
-            max_route_dist, total_distance = main(sample)
+            max_route_dist, total_distance, routes = main(sample)
             maxrtdist_results.append(max_route_dist)
             totdist_results.append(total_distance)
+            routeslist.append(routes)
         toc = time.perf_counter()
-        avg_time = (toc - tic)/len(data)
-        print(f'Average time: {avg_time}')
+        tottime = toc - tic
+        print(f'Total time: {tottime}')
         maxrtdist_results = np.array(maxrtdist_results)
         totdist_results = np.array(totdist_results)
         avg_maxrt = np.mean(maxrtdist_results)
         avg_totdist = np.mean(totdist_results)
         print(f'Average max route distance: {avg_maxrt}')
         print(f'Average total distance: {avg_totdist}')
+
+        with open('GLOP_routes'+str(vrp_size)+'.pkl', 'wb') as f:
+            pickle.dump(routeslist, f, pickle.HIGHEST_PROTOCOL)
