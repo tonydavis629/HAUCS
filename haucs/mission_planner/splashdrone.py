@@ -1,6 +1,13 @@
-# from distutils.util import execute
 import socket
-import random
+import secrets
+
+start = 0xa6 #start flag for splash
+src = 0x04 #ground control
+dest = 0x01 #flight control
+
+TCP_IP = '192.168.2.1' 
+TCP_PORT = 2022      
+BUFFER_SIZE = 1024
 
 #message checksum computed by table lookup
 CRC8_Table =[
@@ -35,10 +42,6 @@ task_type = {'FC_TSK_Null':0, 'FC_TSK_TakeOff':1, 'FC_TSK_Land':2, 'FC_TSK_RTH':
             'FC_TSK_SetHome':4, 'FC_TSK_SetPOI': 5, 'FC_TSK_DelPOI':6, 'FC_TSK_MOVE':7,
             'FC_TSK_Gimbal':8, 'FC_TSK_SetEXTIO':9, 'FC_TSK_WayPoint':10, 'FC_TSK_SetSpeed':11, 'FC_TSK_SetALT':12, 'FC_TSK_WAIT_MS':15, 'FC_TSK_REPLAY':16, 'FC_TSK_CAMERA':17, 'FC_TSK_RESERVE':18, 'FC_TSK_CIRCLE':19}
 
-TCP_IP = '192.168.2.1' 
-TCP_PORT = 2022      
-BUFFER_SIZE = 1024
-
 def CRC8_table_lookup(buffer, offset):
     # Calculate the CRC8 of the buffer
     crc = 0
@@ -69,37 +72,31 @@ def send(msg):
     s.close()
     
     
-def clear_mission(mis_id):
-    start = 0xa6 #start flag for splash
+def clear_mission():
     msgid = msgids['Mis_Ctrl']  #message ID
-    src = 0x04 #ground control
-    dest = 0x01 #flight control
+    mis_id = 0x00
     
     opcode = 'FC_TASK_OC_CLEAR'
     task_type = None
     task_data = None
     payload = make_payload(opcode,mis_id,task_type,task_data)
     
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+    PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
     checksum = CRC8_table_lookup(payload, 0)
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
     msg = bytes(msg)
     send(msg)
 
-
 def start_tx(mis_id):
-    start = 0xa6 #start flag for splash
     msgid = msgids['Mis_Ctrl']  #message ID
-    src = 0x04 #ground control
-    dest = 0x01 #flight control
     
     opcode = 'FC_TASK_OC_TRAN_STR'
     task_type = None
     task_data = None
     payload = make_payload(opcode,mis_id,task_type,task_data)
     
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+    PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
     checksum = CRC8_table_lookup(payload, 0)
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
@@ -107,15 +104,13 @@ def start_tx(mis_id):
     send(msg)
 
 
-def add_mission(mis_id,opc,task,data):
-    start = 0xa6 #start flag for splash
+def add_mission(mis_id,task,data):
     msgid = msgids['Mis_Ctrl']  #message ID
-    src = 0x04 #ground control
-    dest = 0x01 #flight control
+    opc = 'FC_TASK_OC_ACTION'
 
     payload = make_payload(opc,mis_id,task_type[task],data)
     
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+    PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
     checksum = CRC8_table_lookup(payload, 0)
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
@@ -123,21 +118,46 @@ def add_mission(mis_id,opc,task,data):
     send(msg)
     
 def execute_mission():
-    pass 
+    msgid = msgids['Mis_Ctrl']  #message ID
+    opc = 'FC_TASK_OC_START'
+    mis_id = 0x00 #0x00 indicates Flight Control executes the mission from the first one. 0xff indicates Flight Control executes the mission from the previous stopping location.
+    task_type = None
+    task_data = None
+    
+    payload = make_payload(opc,mis_id,task_type,task_data)
+    
+    PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
+    checksum = CRC8_table_lookup(payload, 0)
+    
+    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
+    msg = bytes(msg)
+    send(msg)
 
-def end_tx(mis_id):
-    pass
+def end_tx():
+    msgid = msgids['Mis_Ctrl']  #message ID
+    opc = 'FC_TASK_OC_TRAN_END'
+    mis_id = 0xFF
+    task_type = None
+    task_data = None
+
+    payload = make_payload(opc,mis_id,task_type,task_data)
+    
+    PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
+    checksum = CRC8_table_lookup(payload, 0)
+    
+    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
+    msg = bytes(msg)
+    send(msg)
     
 if __name__ == '__main__':
     # script to take off and hover at 100 cm altitude
 
-    mis_id = hex(random.randint(128,255)) # 1 byte random mission ID
+    mis_id = hex(secrets.randbits(8))#hex(random.randint(128,255)) # 1 byte random mission ID
 
-    # clear_mission(mis_id)
-    # start_tx(mis_id)
+    clear_mission()
+    start_tx(mis_id)
     task = 'FC_TSK_TakeOff'
-    opc = 'FC_TASK_OC_ACTION'
     data = 100 #100 cm
-    add_mission(mis_id,opc,task,data)
-    execute_mission(mis_id)
-    end_tx(mis_id)
+    add_mission(mis_id,task,data)
+    execute_mission()
+    end_tx()
