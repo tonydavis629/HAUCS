@@ -1,6 +1,6 @@
-from distutils.util import execute
+# from distutils.util import execute
 import socket
-import secrets
+import random
 
 #message checksum computed by table lookup
 CRC8_Table =[
@@ -56,6 +56,7 @@ def make_payload(opcode,mis_id,task_type,task_data):
         task_id = mis_id
         
     payload = [opcodes[opcode],task_id,task_type,task_data]
+    payload = [item for item in payload if item is not None]
     
     return payload
 
@@ -130,7 +131,7 @@ def end_tx(mis_id):
 if __name__ == '__main__':
     # script to take off and hover at 100 cm altitude
 
-    mis_id = hex(int(secrets.token_hex(1))) # 1 byte random mission ID
+    mis_id = hex(random.randint(0,255)) # 1 byte random mission ID
 
     clear_mission(mis_id)
     start_tx(mis_id)
@@ -138,5 +139,5 @@ if __name__ == '__main__':
     opc = 'FC_TASK_OC_ACTION'
     data = 100 #100 cm
     add_mission(mis_id,opc,task,data)
-    exec_mission(mis_id)
+    execute_mission(mis_id)
     end_tx(mis_id)
