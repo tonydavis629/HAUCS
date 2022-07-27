@@ -113,7 +113,7 @@ def add_mission(mis_id,opc,task,data):
     src = 0x04 #ground control
     dest = 0x01 #flight control
 
-    payload = make_payload(opcodes[opc],mis_id,task_type[task],data)
+    payload = make_payload(opc,mis_id,task_type[task],data)
     
     PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
     checksum = CRC8_table_lookup(payload, 0)
@@ -131,10 +131,10 @@ def end_tx(mis_id):
 if __name__ == '__main__':
     # script to take off and hover at 100 cm altitude
 
-    mis_id = hex(random.randint(0,255)) # 1 byte random mission ID
+    mis_id = hex(random.randint(128,255)) # 1 byte random mission ID
 
-    clear_mission(mis_id)
-    start_tx(mis_id)
+    # clear_mission(mis_id)
+    # start_tx(mis_id)
     task = 'FC_TSK_TakeOff'
     opc = 'FC_TASK_OC_ACTION'
     data = 100 #100 cm
