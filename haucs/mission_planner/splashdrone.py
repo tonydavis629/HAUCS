@@ -72,7 +72,7 @@ def send(msg):
     s.close()
     
     
-def clear_mission(mis_id):
+def clear_mission():
     start = 0xa6 #start flag for splash
     msgid = msgids['Mis_Ctrl']  #message ID
     mis_id = 0x00
@@ -167,7 +167,8 @@ if __name__ == '__main__':
     clear_mission()
     start_tx(mis_id)
     task = 'FC_TSK_TakeOff'
+    opc = 'FC_TASK_OC_ADD'
     data = 100 #100 cm
-    add_mission(mis_id,task,data)
-    execute_mission()
-    end_tx()
+    add_mission(mis_id,opc,task,data)
+    exec_mission(mis_id)
+    end_tx(mis_id)
