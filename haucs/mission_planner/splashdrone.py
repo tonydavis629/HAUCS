@@ -121,11 +121,41 @@ def add_mission(mis_id,opc,task,data):
     msg = bytes(msg)
     send(msg)
     
-def execute_mission():
-    pass 
+def exec_mission(mis_id):
+    start = 0xa6 #start flag for splash
+    msgid = msgids['Mis_Ctrl']  #message ID
+    src = 0x04 #ground control
+    dest = 0x01 #flight control
+    
+    opcode = 'FC_TASK_OC_START'
+    task_type = None
+    task_data = None
+    payload = make_payload(opcode,mis_id,task_type,task_data)
+    
+    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+    checksum = CRC8_table_lookup(payload, 0)
+    
+    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
+    msg = bytes(msg)
+    send(msg)
 
 def end_tx(mis_id):
-    pass
+    start = 0xa6 #start flag for splash
+    msgid = msgids['Mis_Ctrl']  #message ID
+    src = 0x04 #ground control
+    dest = 0x01 #flight control
+    
+    opcode = 'FC_TASK_OC_TRAN_END'
+    task_type = None
+    task_data = None
+    payload = make_payload(opcode,mis_id,task_type,task_data)
+    
+    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+    checksum = CRC8_table_lookup(payload, 0)
+    
+    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
+    msg = bytes(msg)
+    send(msg)
     
 if __name__ == '__main__':
     # script to take off and hover at 100 cm altitude
