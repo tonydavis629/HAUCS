@@ -1,6 +1,8 @@
 import socket
 import secrets
 
+#password for drone is 12345678
+
 start = 0xa6 #start flag for splash
 src = 0x04 #ground control
 dest = 0x01 #flight control
@@ -38,9 +40,8 @@ opcodes = {'FC_TASK_OC_TRAN_STR': 0x01, 'FC_TASK_OC_ADD':0x03, 'FC_TASK_OC_READ'
 #bytes for specifying type of message
 msgids = {'Stat_Rep':0x1d, 'Mis_Ctrl':0x34, 'Ext_Ctrl':0x30, 'Way_Pt_Rep':0x31}
 
-task_type = {'FC_TSK_Null':0, 'FC_TSK_TakeOff':1, 'FC_TSK_Land':2, 'FC_TSK_RTH':3,
-            'FC_TSK_SetHome':4, 'FC_TSK_SetPOI': 5, 'FC_TSK_DelPOI':6, 'FC_TSK_MOVE':7,
-            'FC_TSK_Gimbal':8, 'FC_TSK_SetEXTIO':9, 'FC_TSK_WayPoint':10, 'FC_TSK_SetSpeed':11, 'FC_TSK_SetALT':12, 'FC_TSK_WAIT_MS':15, 'FC_TSK_REPLAY':16, 'FC_TSK_CAMERA':17, 'FC_TSK_RESERVE':18, 'FC_TSK_CIRCLE':19}
+task_type = {'FC_TSK_Null':0, 'FC_TSK_TakeOff':1, 'FC_TSK_Land':2, 
+             'FC_TSK_RTH':3, 'FC_TSK_SetHome':4, 'FC_TSK_SetPOI': 5, 'FC_TSK_DelPOI':6, 'FC_TSK_MOVE':7, 'FC_TSK_Gimbal':8, 'FC_TSK_SetEXTIO':9, 'FC_TSK_WayPoint':10, 'FC_TSK_SetSpeed':11, 'FC_TSK_SetALT':12, 'FC_TSK_WAIT_MS':15, 'FC_TSK_REPLAY':16, 'FC_TSK_CAMERA':17, 'FC_TSK_RESERVE':18, 'FC_TSK_CIRCLE':19}
 
 def CRC8_table_lookup(buffer, offset):
     # Calculate the CRC8 of the buffer
@@ -73,7 +74,7 @@ def send(msg):
     
     
 def clear_mission():
-    start = 0xa6 #start flag for splash
+
     msgid = msgids['Mis_Ctrl']  #message ID
     mis_id = 0x00
     
@@ -90,10 +91,7 @@ def clear_mission():
     send(msg)
 
 def start_tx(mis_id):
-    start = 0xa6 #start flag for splash
     msgid = msgids['Mis_Ctrl']  #message ID
-    src = 0x04 #ground control
-    dest = 0x01 #flight control
     
     opcode = 'FC_TASK_OC_START'
     task_type = None
@@ -109,10 +107,7 @@ def start_tx(mis_id):
 
 
 def add_mission(mis_id,opc,task,data):
-    start = 0xa6 #start flag for splash
     msgid = msgids['Mis_Ctrl']  #message ID
-    src = 0x04 #ground control
-    dest = 0x01 #flight control
 
     payload = make_payload(opcodes[opc],mis_id,task_type[task],data)
     
@@ -124,10 +119,7 @@ def add_mission(mis_id,opc,task,data):
     send(msg)
     
 def exec_mission(mis_id):
-    start = 0xa6 #start flag for splash
     msgid = msgids['Mis_Ctrl']  #message ID
-    src = 0x04 #ground control
-    dest = 0x01 #flight control
     
     opcode = 'FC_TASK_OC_START'
     task_type = None
@@ -142,10 +134,7 @@ def exec_mission(mis_id):
     send(msg)
 
 def end_tx(mis_id):
-    start = 0xa6 #start flag for splash
     msgid = msgids['Mis_Ctrl']  #message ID
-    src = 0x04 #ground control
-    dest = 0x01 #flight control
     
     opcode = 'FC_TASK_OC_TRAN_END'
     task_type = None
