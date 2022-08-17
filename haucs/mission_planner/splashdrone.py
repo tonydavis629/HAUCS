@@ -40,7 +40,7 @@ opcodes = {'FC_TASK_OC_TRAN_STR': 0x01, 'FC_TASK_OC_ADD':0x03, 'FC_TASK_OC_READ'
 #bytes for specifying type of message
 msgids = {'Stat_Rep':0x1d, 'Mis_Ctrl':0x34, 'Ext_Ctrl':0x30, 'Way_Pt_Rep':0x31}
 
-task_type = {'FC_TSK_Null':0, 'FC_TSK_TakeOff':1, 'FC_TSK_Land':2, 
+task_type = {None:None,'FC_TSK_Null':0, 'FC_TSK_TakeOff':1, 'FC_TSK_Land':2, 
              'FC_TSK_RTH':3, 'FC_TSK_SetHome':4, 'FC_TSK_SetPOI': 5, 'FC_TSK_DelPOI':6, 'FC_TSK_MOVE':7, 'FC_TSK_Gimbal':8, 'FC_TSK_SetEXTIO':9, 'FC_TSK_WayPoint':10, 'FC_TSK_SetSpeed':11, 'FC_TSK_SetALT':12, 'FC_TSK_WAIT_MS':15, 'FC_TSK_REPLAY':16, 'FC_TSK_CAMERA':17, 'FC_TSK_RESERVE':18, 'FC_TSK_CIRCLE':19}
 
 def CRC8_table_lookup(buffer, offset):
@@ -50,7 +50,7 @@ def CRC8_table_lookup(buffer, offset):
         crc = CRC8_Table[crc ^ buffer[offset + i]]
     return crc
 
-def make_payload(opcode,mis_id,task_type,task_data):
+def make_payload(opcode,mis_id,task,task_data):
     
     if opcode == 'FC_TASK_OC_CLEAR' or 'FC_TASK_OC_STOP':
         task_id = 0x00
@@ -59,7 +59,7 @@ def make_payload(opcode,mis_id,task_type,task_data):
     else:
         task_id = mis_id
         
-    payload = [opcodes[opcode],task_id,task_type,task_data]
+    payload = [opcodes[opcode],task_id,task_type[task],task_data]
     payload = [item for item in payload if item is not None]
     
     return payload
@@ -88,6 +88,7 @@ def clear_mission():
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
     msg = bytes(msg)
+    print('Sending clear')
     send(msg)
 
 def start_tx(mis_id):
@@ -103,19 +104,21 @@ def start_tx(mis_id):
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
     msg = bytes(msg)
+    print('Sending start')
     send(msg)
 
 
 def add_mission(mis_id,opc,task,data):
     msgid = msgids['Mis_Ctrl']  #message ID
 
-    payload = make_payload(opcodes[opc],mis_id,task_type[task],data)
+    payload = make_payload(opc,mis_id,task,data)
     
     PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
     checksum = CRC8_table_lookup(payload, 0)
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
     msg = bytes(msg)
+    print('Sending start')
     send(msg)
     
 def exec_mission(mis_id):
@@ -131,6 +134,7 @@ def exec_mission(mis_id):
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
     msg = bytes(msg)
+    print('Sending exec')
     send(msg)
 
 def end_tx(mis_id):
@@ -146,6 +150,7 @@ def end_tx(mis_id):
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
     msg = bytes(msg)
+    print('Sending end')
     send(msg)
     
 if __name__ == '__main__':
