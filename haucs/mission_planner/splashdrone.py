@@ -67,9 +67,17 @@ def make_payload(opcode,mis_id,task,task_data):
 def send(msg):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((TCP_IP, TCP_PORT))
+    
+    if len(msg) == 8:
+        print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'Mis_id:', hex(msg[6]), 'Checksum:', hex(msg[-1]))
+    else:
+        print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'Mis_id:', hex(msg[6]), 'task_type:', hex(msg[7]), 'task_data:', hex(msg[8]), 'Checksum:', hex(msg[-1]))
+        
     s.send(msg)
-    data = s.recv(BUFFER_SIZE) #todo: verify ack packet
-    print(data)
+    ack = s.recv(BUFFER_SIZE) #todo: verify ack packet
+    print([hex(i) for i in ack])
+    if ack != msg:
+        print('ack not received')
     s.close()
     
     
@@ -87,8 +95,9 @@ def clear_mission():
     checksum = CRC8_table_lookup(payload, 0)
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
+    bsg = bytes(msg)
     print('Sending clear')
+
     send(msg)
 
 def start_tx(mis_id):
@@ -157,11 +166,12 @@ if __name__ == '__main__':
     # script to take off and hover at 100 cm altitude
 
     mis_id = hex(secrets.randbits(8))#hex(random.randint(128,255)) # 1 byte random mission ID
-
+    print('Mission ID:',mis_id)
+    
     clear_mission()
     start_tx(mis_id)
     task = 'FC_TSK_TakeOff'
-    opc = 'FC_TASK_OC_ADD'
+    opc = 'FC_TASK_OC_ACTION' #'FC_TASK_OC_ADD'
     data = 100 #100 cm
     add_mission(mis_id,opc,task,data)
     exec_mission(mis_id)
