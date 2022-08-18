@@ -74,8 +74,11 @@ def send(msg):
         print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'Mis_id:', hex(msg[6]), 'task_type:', hex(msg[7]), 'task_data:', hex(msg[8]), 'Checksum:', hex(msg[-1]))
         
     s.send(msg)
-    ack = s.recv(BUFFER_SIZE) #todo: verify ack packet
+    ack = s.recv(BUFFER_SIZE) 
+    
+    print('ACK:')
     print([hex(i) for i in ack])
+    
     if ack != msg:
         print('ack not received')
     s.close()
