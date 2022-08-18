@@ -95,7 +95,7 @@ def clear_mission():
     checksum = CRC8_table_lookup(payload, 0)
     
     msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    bsg = bytes(msg)
+    msg = bytes(msg)
     print('Sending clear')
 
     send(msg)
