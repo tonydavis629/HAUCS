@@ -60,69 +60,63 @@ class splashdrone():
 
     def clear_mission(self):     
         opcode = 'FC_TASK_OC_CLEAR'
-        task_type = None
-        task_data = []
-        payload = self.make_payload(opcode,task_type,task_data)
+        task = None
+        data = []
+        # payload = self.make_payload(opcode,task,data)
         
-        PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
+        # PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
         
-        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload 
+        # msg = [start,PackLength,self.msgid,self.src,self.dest] + payload 
         print('Sending clear')
 
-        self.send(msg)
+        self.send(opcode,task,data)
 
     def start_tx(self):      
         opcode = 'FC_TASK_OC_START'
         task = None
         data = []
-        payload = self.make_payload(opcode,task,data)
+        # payload = self.make_payload(opcode,task,data)
         
-        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+        # PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
         
-        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
+        # msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
 
         print('Sending start')
-        self.send(msg)
+        self.send(opcode,task,data)
 
     def end_tx(self):
         opcode = 'FC_TASK_OC_TRAN_END'
         task = None
         data = []
-        payload = self.make_payload(opcode,task,data)
+        # payload = self.make_payload(opcode,task,data)
         
-        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+        # PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
 
-        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload 
+        # msg = [start,PackLength,self.msgid,self.src,self.dest] + payload 
 
         print('Sending end')
-        self.send(msg)
+        self.send(opcode,task,data)
 
     def add_task(self,task:str,data:list):
         opc = 'FC_TASK_OC_ADD'
 
-        payload = self.make_payload(opc,task,data)
-        
-        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-        
-        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
-
         print('Sending add')
-        self.send(msg)
+        self.send(opc,task,data)
 
         self.task_id += 1
 
     def execute(self):       
-        opcode = 'FC_TASK_OC_START'
+        opc = 'FC_TASK_OC_START'
         task = None
         data = []
-        payload = self.make_payload(opcode,task,data)
+        # payload = self.make_payload(opcode,task,data)
         
-        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+        # PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
 
-        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
+        # msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
 
         print('Sending exec')
-        self.send(msg)
+        self.send(opc,task,data)
 
     def make_payload(self,opcode,task,task_data):      
         if opcode == 'FC_TASK_OC_CLEAR' or opcode == 'FC_TASK_OC_STOP' or opcode == 'FC_TASK_OC_START':
@@ -135,16 +129,20 @@ class splashdrone():
         
         return payload
 
-    def send(self,msg):
+    def send(self,opc,task,data):
         # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # s.connect((TCP_IP, TCP_PORT))
 
-
+        payload = self.make_payload(opc,task,data)
+        
+        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+        
+        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
     
         checksum = CRC8_table_lookup(msg[1:], 0)
         packet = msg + [checksum]
         print([hex(item) for item in packet])
-        # print('stop')
+
         # s.send(bytes(packet))
         # ack = s.recv(BUFFER_SIZE) 
         
@@ -157,7 +155,8 @@ class splashdrone():
         task = 'FC_TSK_WAIT_MS'
         time_ms = (int(time*1000)).to_bytes(4,'little')
         data = list(time_ms)
-        return task, data
+        self.add_task(task,data)
+        # return task, data
 
     def lights(self,state:bool):
         task = 'FC_TSK_SetEXTIO'
@@ -167,44 +166,35 @@ class splashdrone():
         else:
             ioSet = 0x00
         data = [ioSelect,0,0,0,ioSet,0,0,0]
-        return task, data    
+        self.add_task(task,data)
+        # return task, data    
     
 
 if __name__ == '__main__':
     sp = splashdrone()
-#   [start,PackLength,msgid,src,dest] + opcode,task_id,task_type,task_data + [checksum]
-    
-    # clear_mission()
-
     sp.start_tx()
+    sp.lights(0)
+    sp.wait(3)
+    sp.lights(1)
+    sp.end_tx()
+    sp.execute()
+    
+    
+    
+    
+    # start tx
     # msg1=[0xa6,0x08,0x34,0x04,0x01,   0x05,0x00,                                                    0x60]
-
-    task,data = sp.lights(0)
-    sp.add_task(task,data)
     # add light off
-    # msg2=[0xa6,0x11,0x34,0x04,0x01,   0x03,0x00,0x09,  0x33,0x00,0x00,0x00,0x00,0x00,0x00,0x00,     0x97]
-
-    task,data = sp.wait(3)
-    sp.add_task(task,data)
+    # msg2=[0xa6,0x11,0x34,0x04,0x01,   0x03,0x00,0x09,  0x33,0x00,0x00,0x00,0x00,0x00,0x00,0x00,     0x97] 
     # add wait
     # msg3=[0xa6,0x0d,0x34,0x04,0x01,   0x03,0x01,0x0f,  0xb8,0x0b,0x00,0x00,                         0x21]
-
-    task,data = sp.lights(1)
-    sp.add_task(task,data)
     # add light on
     # msg4=[0xa6,0x11,0x34,0x04,0x01,   0x03,0x02,0x09,  0x33,0x00,0x00,0x00,0x33,0x00,0x00,0x00,     0xd2]
-
-    sp.end_tx()
     # end tx
-    # msg5=[0xa6,0x08,0x34,0x04,0x01,   0xff,0xff,                                                    0x2b]
-
-    sp.execute()
-    # end_tx()
+    # msg5=[0xa6,0x08,0x34,0x04,0x01,   0xff,0xff,                                                    0x2b]    
     # execute
     # msg6=[0xa6,0x08,0x34,0x04,0x01,   0x05,0x00,                                                    0x60]
 
-    # start tx
-    # 
 
 
 
