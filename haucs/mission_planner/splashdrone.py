@@ -62,11 +62,7 @@ class splashdrone():
         opcode = 'FC_TASK_OC_CLEAR'
         task = None
         data = []
-        # payload = self.make_payload(opcode,task,data)
-        
-        # PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
-        
-        # msg = [start,PackLength,self.msgid,self.src,self.dest] + payload 
+
         print('Sending clear')
 
         self.send(opcode,task,data)
@@ -75,11 +71,6 @@ class splashdrone():
         opcode = 'FC_TASK_OC_START'
         task = None
         data = []
-        # payload = self.make_payload(opcode,task,data)
-        
-        # PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-        
-        # msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
 
         print('Sending start')
         self.send(opcode,task,data)
@@ -88,11 +79,6 @@ class splashdrone():
         opcode = 'FC_TASK_OC_TRAN_END'
         task = None
         data = []
-        # payload = self.make_payload(opcode,task,data)
-        
-        # PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-
-        # msg = [start,PackLength,self.msgid,self.src,self.dest] + payload 
 
         print('Sending end')
         self.send(opcode,task,data)
@@ -109,11 +95,6 @@ class splashdrone():
         opc = 'FC_TASK_OC_START'
         task = None
         data = []
-        # payload = self.make_payload(opcode,task,data)
-        
-        # PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-
-        # msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
 
         print('Sending exec')
         self.send(opc,task,data)
@@ -130,8 +111,8 @@ class splashdrone():
         return payload
 
     def send(self,opc,task,data):
-        # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # s.connect((TCP_IP, TCP_PORT))
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((TCP_IP, TCP_PORT))
 
         payload = self.make_payload(opc,task,data)
         
@@ -143,20 +124,19 @@ class splashdrone():
         packet = msg + [checksum]
         print([hex(item) for item in packet])
 
-        # s.send(bytes(packet))
-        # ack = s.recv(BUFFER_SIZE) 
+        s.send(bytes(packet))
+        ack = s.recv(BUFFER_SIZE) 
         
-        # print('ACK:')
-        # print([hex(i) for i in ack])
+        print('ACK:')
+        print([hex(i) for i in ack])
         
-        # s.close()
+        s.close()
 
     def wait(self,time:float):
         task = 'FC_TSK_WAIT_MS'
         time_ms = (int(time*1000)).to_bytes(4,'little')
         data = list(time_ms)
         self.add_task(task,data)
-        # return task, data
 
     def lights(self,state:bool):
         task = 'FC_TSK_SetEXTIO'
@@ -167,7 +147,6 @@ class splashdrone():
             ioSet = 0x00
         data = [ioSelect,0,0,0,ioSet,0,0,0]
         self.add_task(task,data)
-        # return task, data    
     
 
 if __name__ == '__main__':
@@ -181,7 +160,7 @@ if __name__ == '__main__':
     
     
     
-    
+    # example 
     # start tx
     # msg1=[0xa6,0x08,0x34,0x04,0x01,   0x05,0x00,                                                    0x60]
     # add light off
@@ -198,5 +177,5 @@ if __name__ == '__main__':
 
 
 
-    # 
+
     
