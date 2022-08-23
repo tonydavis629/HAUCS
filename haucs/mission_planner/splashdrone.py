@@ -1,11 +1,12 @@
 import socket
-import secrets
+import crc8
 
 #password for drone is 12345678
 
 start = 0xa6 #start flag for splash
 src = 0x04 #ground control
 dest = 0x01 #flight control
+task_id = 0 #initial task id
 
 TCP_IP = '192.168.2.1' 
 TCP_PORT = 2022      
@@ -47,17 +48,15 @@ def CRC8_table_lookup(buffer, offset):
     # Calculate the CRC8 of the buffer
     crc = 0
     for i,_ in enumerate(buffer):
-        crc = CRC8_Table[crc ^ buffer[offset + i]]
+        crc = CRC8_Table[crc ^ buffer[i + offset]]
     return crc
 
-def make_payload(opcode,mis_id,task,task_data):
+def make_payload(opcode,task_id,task,task_data):
     
     if opcode == 'FC_TASK_OC_CLEAR' or 'FC_TASK_OC_STOP':
         task_id = 0x00
     elif opcode == 'FC_TASK_OC_TRAN_END':
         task_id = 0xFF
-    else:
-        task_id = mis_id
         
     payload = [opcodes[opcode],task_id,task_type[task],task_data]
     payload = [item for item in payload if item is not None]
@@ -65,132 +64,133 @@ def make_payload(opcode,mis_id,task,task_data):
     return payload
 
 def send(msg):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((TCP_IP, TCP_PORT))
+    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # s.connect((TCP_IP, TCP_PORT))
     
-    if len(msg) == 8:
-        print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'Mis_id:', hex(msg[6]), 'Checksum:', hex(msg[-1]))
-    else:
-        print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'Mis_id:', hex(msg[6]), 'task_type:', hex(msg[7]), 'task_data:', hex(msg[8]), 'Checksum:', hex(msg[-1]))
+    # if len(msg) == 8:
+    #     print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'task_id:', hex(msg[6]), 'Checksum:', hex(msg[-1]))
+    # else:
+    #     print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'task_id:', hex(msg[6]), 'task_type:', hex(msg[7]), 'task_data:', hex(msg[8]), 'Checksum:', hex(msg[-1]))
         
-    s.send(msg)
-    ack = s.recv(BUFFER_SIZE) 
+    checksum = CRC8_table_lookup(msg[1:], 0)
+    packet = msg + [checksum]
+    print([hex(item) for item in packet])
+    print('stop')
+    # s.send(bytes(packet))
+    # ack = s.recv(BUFFER_SIZE) 
     
-    print('ACK:')
-    print([hex(i) for i in ack])
+    # print('ACK:')
+    # print([hex(i) for i in ack])
     
-    if ack != msg:
-        print('ack not received')
-    s.close()
+    # s.close()
     
     
 def clear_mission():
 
     msgid = msgids['Mis_Ctrl']  #message ID
-    mis_id = 0x00
     
     opcode = 'FC_TASK_OC_CLEAR'
     task_type = None
     task_data = None
-    payload = make_payload(opcode,mis_id,task_type,task_data)
+    payload = make_payload(opcode,task_id,task_type,task_data)
     
     PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
     
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
+    msg = [start,PackLength,msgid,src,dest] + payload 
     print('Sending clear')
 
     send(msg)
 
-def start_tx(mis_id):
+def start_tx():
     msgid = msgids['Mis_Ctrl']  #message ID
     
     opcode = 'FC_TASK_OC_START'
     task_type = None
     task_data = None
-    payload = make_payload(opcode,mis_id,task_type,task_data)
+    payload = make_payload(opcode,task_id,task_type,task_data)
     
     PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
     
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
+    msg = [start,PackLength,msgid,src,dest] + payload
+
     print('Sending start')
     send(msg)
 
 
-def add_mission(mis_id,opc,task,data):
+def add_mission(opc,task,data):
+    global task_id
+
     msgid = msgids['Mis_Ctrl']  #message ID
 
-    payload = make_payload(opc,mis_id,task,data)
+    payload = make_payload(opc,task_id,task,data)
     
     PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
     
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
+    msg = [start,PackLength,msgid,src,dest] + payload
+
     print('Sending start')
     send(msg)
+
+    task_id += 1
     
-def exec_mission(mis_id):
+def exec_mission():
     msgid = msgids['Mis_Ctrl']  #message ID
     
     opcode = 'FC_TASK_OC_START'
     task_type = None
     task_data = None
-    payload = make_payload(opcode,mis_id,task_type,task_data)
+    payload = make_payload(opcode,task_id,task_type,task_data)
     
     PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
-    
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
+
+    msg = [start,PackLength,msgid,src,dest] + payload
+
     print('Sending exec')
     send(msg)
 
-def end_tx(mis_id):
+def end_tx():
     msgid = msgids['Mis_Ctrl']  #message ID
     
     opcode = 'FC_TASK_OC_TRAN_END'
     task_type = None
     task_data = None
-    payload = make_payload(opcode,mis_id,task_type,task_data)
+    payload = make_payload(opcode,task_id,task_type,task_data)
     
     PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
-    
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
+
+    msg = [start,PackLength,msgid,src,dest] + payload 
+
     print('Sending end')
     send(msg)
+
     
 if __name__ == '__main__':
     # script to take off and hover at 100 cm altitude
-
-    mis_id = hex(secrets.randbits(8))#hex(random.randint(128,255)) # 1 byte random mission ID
-    print('Mission ID:',mis_id)
     
-    clear_mission()
-    start_tx(mis_id)
+    
+    # clear_mission()
+    # start_tx()
+    # msg1=[0xa6,0x08,0x34,0x04,0x01,   0x05,0x00,                                                    0x60]
+
     task = 'FC_TSK_TakeOff'
     opc = 'FC_TASK_OC_ACTION' #'FC_TASK_OC_ADD'
     data = 100 #100 cm
-    add_mission(mis_id,opc,task,data)
-    exec_mission(mis_id)
-    end_tx(mis_id)
+    add_mission(task_id,opc,task,data)
+    # exec_mission()
+    # end_tx()
 
-
-    # msg1=[0xa6,0x08,0x34,0x04,0x01,0x05,0x00,0x60]
-    # send(msg1)
-    # msg2=[0xa6,0x11,0x34,0x04,0x01,0x03,0x00,0x09,0x33,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x97]
-    # send(msg2)
-    # msg3=[0xa6,0x0d,0x34,0x04,0x01,0x03,0x01,0x0f,0xb8,0x0b,0x00,0x00,0x21]
-    # send(msg3)
-    # msg4=[0xa6,0x11,0x34,0x04,0x01,0x03,0x02,0x09,0x33,0x00,0x00,0x00,0x33,0x00,0x00,0x00,0xd2]
-    # send(msg4)
-    # msg5=[0xa6,0x08,0x34,0x04,0x01,0xff,0xff,0x2b]
-    # send(msg5)
-    # msg6=[0xa6,0x08,0x34,0x04,0x01,0x05,0x00,0x60]
-    # send(msg6)
+#   [start,PackLength,msgid,src,dest] + opcode,task_id,task_type,task_data + [checksum]
+    # start tx
+    # 
+    # add light off
+    # msg2=[0xa6,0x11,0x34,0x04,0x01,   0x03,0x00,0x09,  0x33,0x00,0x00,0x00,0x00,0x00,0x00,0x00,     0x97]
+    # add wait
+    # msg3=[0xa6,0x0d,0x34,0x04,0x01,   0x03,0x01,0x0f,  0xb8,0x0b,0x00,0x00,                         0x21]
+    # add light on
+    # msg4=[0xa6,0x11,0x34,0x04,0x01,   0x03,0x02,0x09,  0x33,0x00,0x00,0x00,0x33,0x00,0x00,0x00,     0xd2]
+    # end tx
+    # msg5=[0xa6,0x08,0x34,0x04,0x01,   0xff,0xff,                                                    0x2b]
+    # execute
+    # msg6=[0xa6,0x08,0x34,0x04,0x01,   0x05,0x00,                                                    0x60]
+    # 
     
