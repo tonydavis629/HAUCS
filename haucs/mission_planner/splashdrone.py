@@ -148,13 +148,41 @@ class splashdrone():
         data = [ioSelect,0,0,0,ioSet,0,0,0]
         self.add_task(task,data)
     
+    def set_home(self,lat:int,long:int):
+        """
+        lat: latitude in 1e7 format
+        long: longitude in 1e7 format
+        """
+        task = 'FC_TSK_SetHome'
+        lat_b = (int(lat)).to_bytes(4,'little')
+        long_b = (int(long)).to_bytes(4,'little')
+        data = list(lat_b) + list(long_b)
+        self.add_task(task,data)
+        
+    def takeoff(self,alt:int):
+        """
+        alt: altitude 0-65535 cm
+        """
+        task = 'FC_TSK_TakeOff'
+        alt_b = (int(alt)).to_bytes(2,'little')
+        data = list(alt_b)
+        self.add_task(task,data)
+        
+    def land(self):
+        task = 'FC_TSK_Land'
+        data = []
+        self.add_task(task,data)
 
 if __name__ == '__main__':
     sp = splashdrone()
+    # sp.set_home(1800000000,1800000000)
     sp.start_tx()
-    sp.lights(0)
+    sp.takeoff(100)
     sp.wait(3)
-    sp.lights(1)
+    sp.land()
+    # sp.lights(0)
+    # sp.wait(3)
+    # sp.lights(1)
     sp.end_tx()
     sp.execute()
     
