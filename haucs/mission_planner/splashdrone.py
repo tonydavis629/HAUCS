@@ -1,4 +1,5 @@
 import socket
+import struct
 
 start = 0xa6 #start flag for splash
 TCP_IP = '192.168.2.1' 
@@ -111,8 +112,8 @@ class splashdrone():
         return payload
 
     def send(self,opc,task,data):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((TCP_IP, TCP_PORT))
+        # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # s.connect((TCP_IP, TCP_PORT))
 
         payload = self.make_payload(opc,task,data)
         
@@ -124,38 +125,46 @@ class splashdrone():
         packet = msg + [checksum]
         print([hex(item) for item in packet])
 
-        s.send(bytes(packet))
-        ack = s.recv(BUFFER_SIZE) 
+        # s.send(bytes(packet))
+        # ack = s.recv(BUFFER_SIZE) 
         
-        print('ACK:')
-        print([hex(i) for i in ack])
+        # print('ACK:')
+        # print([hex(i) for i in ack])
         
-        s.close()
+        # s.close()
 
     def wait(self,time:float):
         task = 'FC_TSK_WAIT_MS'
-        time_ms = (int(time*1000)).to_bytes(4,'little')
+        # time_ms = (int(time*1000)).to_bytes(4,'little')
+        time_ms = struct.pack('<I',int(time*1000))
         data = list(time_ms)
         self.add_task(task,data)
 
     def lights(self,state:bool):
         task = 'FC_TSK_SetEXTIO'
         ioSelect = 0x33
+        # ioSelect = ioSelect.to_bytes(4,'little')
+        ioSelect = struct.pack('<i',ioSelect)
         if state:
             ioSet = 0x33
         else:
             ioSet = 0x00
-        data = [ioSelect,0,0,0,ioSet,0,0,0]
+        # ioSet = ioSet.to_bytes(4,'little')
+        ioSet = struct.pack('<i',ioSet)
+        data = list(ioSelect) + list(ioSet)
         self.add_task(task,data)
     
-    def set_home(self,lat:int,long:int):
+    def set_home(self,lat:float,long:float):
         """
         lat: latitude in 1e7 format
         long: longitude in 1e7 format
         """
         task = 'FC_TSK_SetHome'
-        lat_b = (int(lat)).to_bytes(4,'little')
-        long_b = (int(long)).to_bytes(4,'little')
+        lat = round(lat * 1e7)
+        long = round(long * 1e7)
+        
+        lat_b = struct.pack('<i',lat) #little endian int32/int
+        long_b = struct.pack('<i',long)
         data = list(lat_b) + list(long_b)
         self.add_task(task,data)
         
@@ -164,7 +173,8 @@ class splashdrone():
         alt: altitude 0-65535 cm
         """
         task = 'FC_TSK_TakeOff'
-        alt_b = (int(alt)).to_bytes(2,'little')
+        # alt_b = (int(alt)).to_bytes(2,'little')
+        alt_b = struct.pack('<h',alt) #little endian int16/short
         data = list(alt_b)
         self.add_task(task,data)
         
@@ -175,8 +185,9 @@ class splashdrone():
 
 if __name__ == '__main__':
     sp = splashdrone()
-    # sp.set_home(1800000000,1800000000)
     sp.start_tx()
+    sp.lights(0)
+    sp.set_home(27.535990635889608, -80.35388550334784)
     sp.takeoff(100)
     sp.wait(3)
     sp.land()
