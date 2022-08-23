@@ -67,8 +67,7 @@ class splashdrone():
         task = None
         data = []
 
-        print('Sending clear')
-
+        print('Clear mission queue')
         self.send(opcode,task,data)
 
     def start_tx(self):      
@@ -84,13 +83,12 @@ class splashdrone():
         task = None
         data = []
 
-        print('Sending end')
+        print('End tx')
         self.send(opcode,task,data)
 
     def add_task(self,task:str,data:list):
         opc = 'FC_TASK_OC_ADD'
 
-        print('Sending add')
         self.send(opc,task,data)
 
         self.task_id += 1
@@ -100,7 +98,7 @@ class splashdrone():
         task = None
         data = []
 
-        print('Sending exec')
+        print('Executing mission')
         self.send(opc,task,data)
 
     def make_payload(self,opcode,task,task_data):      
@@ -141,6 +139,7 @@ class splashdrone():
         # time_ms = (int(time*1000)).to_bytes(4,'little')
         time_ms = struct.pack('<I',int(time*1000))
         data = list(time_ms)
+        print('Waiting for ' + str(time) + ' seconds')
         self.add_task(task,data)
 
     def lights(self,state:bool):
@@ -155,6 +154,8 @@ class splashdrone():
         # ioSet = ioSet.to_bytes(4,'little')
         ioSet = struct.pack('<i',ioSet)
         data = list(ioSelect) + list(ioSet)
+        
+        print('Setting lights to ' + str(state))
         self.add_task(task,data)
     
     def set_home(self,lat:float,long:float):
@@ -169,6 +170,8 @@ class splashdrone():
         lat_b = struct.pack('<i',lat) #little endian int32/int
         long_b = struct.pack('<i',long)
         data = list(lat_b) + list(long_b)
+        
+        print('Setting home to ' + str(lat) + ',' + str(long))
         self.add_task(task,data)
         
     def takeoff(self,alt:int):
@@ -179,11 +182,14 @@ class splashdrone():
         # alt_b = (int(alt)).to_bytes(2,'little')
         alt_b = struct.pack('<h',alt) #little endian int16/short
         data = list(alt_b)
+        
+        print('Taking off to ' + str(alt) + ' cm')
         self.add_task(task,data)
         
     def land(self):
         task = 'FC_TSK_Land'
         data = []
+        print('Landing')
         self.add_task(task,data)
         
     def set_speed(self,speed:int):
@@ -194,6 +200,7 @@ class splashdrone():
         # speed_b = (int(speed)).to_bytes(1,'little')
         speed_b = struct.pack('<H',speed)
         data = list(speed_b)
+        print('Setting speed to ' + str(speed) + ' cm/s')
         self.add_task(task,data)
         
     def set_alt(self,alt:int):
@@ -204,6 +211,7 @@ class splashdrone():
         # alt_b = (int(alt)).to_bytes(2,'little')
         alt_b = struct.pack('<h',alt)
         data = list(alt_b)
+        print('Setting altitude to ' + str(alt) + ' cm')
         self.add_task(task,data)
         
     def add_wp(self,lat:float=None,long:float=None,alt:int=None,speed:int=None,hovertime:int=None):
@@ -226,11 +234,13 @@ class splashdrone():
         long_b = struct.pack('<i',long)
         
         data = list(hovertime_b) + list(lat_b) + list(long_b)
+        print('Adding waypoint at ' + str(lat) + ',' + str(long))
         self.add_task(task,data)
 
     def return_home(self):
         task = 'FC_TSK_RTH'
         data = []
+        print('Returning home')
         self.add_task(task,data)
 
 if __name__ == '__main__':
