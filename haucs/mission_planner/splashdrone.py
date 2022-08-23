@@ -1,5 +1,4 @@
 import socket
-import crc8
 
 #password for drone is 12345678
 
@@ -10,7 +9,7 @@ task_id = 0 #initial task id
 
 TCP_IP = '192.168.2.1' 
 TCP_PORT = 2022      
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 64
 
 #message checksum computed by table lookup
 CRC8_Table =[
@@ -69,20 +68,20 @@ def make_payload(opcode,task,task_data):
     return payload
 
 def send(msg):
-    # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # s.connect((TCP_IP, TCP_PORT))
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((TCP_IP, TCP_PORT))
  
     checksum = CRC8_table_lookup(msg[1:], 0)
     packet = msg + [checksum]
     print([hex(item) for item in packet])
-    print('stop')
-    # s.send(bytes(packet))
-    # ack = s.recv(BUFFER_SIZE) 
+    # print('stop')
+    s.send(bytes(packet))
+    ack = s.recv(BUFFER_SIZE) 
     
-    # print('ACK:')
-    # print([hex(i) for i in ack])
+    print('ACK:')
+    print([hex(i) for i in ack])
     
-    # s.close()
+    s.close()
     
     
 def clear_mission():
@@ -119,7 +118,6 @@ def start_tx():
 
 def add_mission(task:str,data:list):
     global task_id
-    # print(f'Task id = {task_id}')
 
     msgid = msgids['Mis_Ctrl']  #message ID
 
