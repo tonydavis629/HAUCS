@@ -1,12 +1,6 @@
 import socket
 
-#password for drone is 12345678
-
 start = 0xa6 #start flag for splash
-src = 0x04 #ground control
-dest = 0x01 #flight control
-task_id = 0 #initial task id
-
 TCP_IP = '192.168.2.1' 
 TCP_PORT = 2022      
 BUFFER_SIZE = 64
@@ -54,162 +48,157 @@ def CRC8_table_lookup(buffer, offset):
         crc = CRC8_Table[crc ^ buffer[i + offset]]
     return crc
 
-def make_payload(opcode,task,task_data):
-    global task_id
-    
-    if opcode == 'FC_TASK_OC_CLEAR' or opcode == 'FC_TASK_OC_STOP' or opcode == 'FC_TASK_OC_START':
-        task_id = 0x00
-    elif opcode == 'FC_TASK_OC_TRAN_END':
-        task_id = 0xFF
+class splashdrone():
+    """
+    Control the splashdrone 4 with python. Default wifi password is 12345678.
+    """
+    def __init__(self):
+        self.src = 0x04 #ground control
+        self.dest = 0x01 #flight control
+        self.task_id = 0 #initial task id
+        self.msgid = msgids['Mis_Ctrl'] #message ID
+
+    def clear_mission(self):     
+        opcode = 'FC_TASK_OC_CLEAR'
+        task_type = None
+        task_data = []
+        payload = self.make_payload(opcode,task_type,task_data)
         
-    payload = [opcodes[opcode],task_id,task_type[task]] + task_data
-    payload = [item for item in payload if item is not None]
+        PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
+        
+        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload 
+        print('Sending clear')
+
+        self.send(msg)
+
+    def start_tx(self):      
+        opcode = 'FC_TASK_OC_START'
+        task = None
+        data = []
+        payload = self.make_payload(opcode,task,data)
+        
+        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+        
+        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
+
+        print('Sending start')
+        self.send(msg)
+
+    def end_tx(self):
+        opcode = 'FC_TASK_OC_TRAN_END'
+        task = None
+        data = []
+        payload = self.make_payload(opcode,task,data)
+        
+        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+
+        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload 
+
+        print('Sending end')
+        self.send(msg)
+
+    def add_task(self,task:str,data:list):
+        opc = 'FC_TASK_OC_ADD'
+
+        payload = self.make_payload(opc,task,data)
+        
+        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+        
+        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
+
+        print('Sending add')
+        self.send(msg)
+
+        self.task_id += 1
+
+    def execute(self):       
+        opcode = 'FC_TASK_OC_START'
+        task = None
+        data = []
+        payload = self.make_payload(opcode,task,data)
+        
+        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+
+        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
+
+        print('Sending exec')
+        self.send(msg)
+
+    def make_payload(self,opcode,task,task_data):      
+        if opcode == 'FC_TASK_OC_CLEAR' or opcode == 'FC_TASK_OC_STOP' or opcode == 'FC_TASK_OC_START':
+            self.task_id = 0x00
+        elif opcode == 'FC_TASK_OC_TRAN_END':
+            self.task_id = 0xFF
+            
+        payload = [opcodes[opcode],self.task_id,task_type[task]] + task_data
+        payload = [item for item in payload if item is not None]
+        
+        return payload
+
+    def send(self,msg):
+        # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # s.connect((TCP_IP, TCP_PORT))
+
+
     
-    return payload
+        checksum = CRC8_table_lookup(msg[1:], 0)
+        packet = msg + [checksum]
+        print([hex(item) for item in packet])
+        # print('stop')
+        # s.send(bytes(packet))
+        # ack = s.recv(BUFFER_SIZE) 
+        
+        # print('ACK:')
+        # print([hex(i) for i in ack])
+        
+        # s.close()
 
-def send(msg):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((TCP_IP, TCP_PORT))
- 
-    checksum = CRC8_table_lookup(msg[1:], 0)
-    packet = msg + [checksum]
-    print([hex(item) for item in packet])
-    # print('stop')
-    s.send(bytes(packet))
-    ack = s.recv(BUFFER_SIZE) 
+    def wait(self,time:float):
+        task = 'FC_TSK_WAIT_MS'
+        time_ms = (int(time*1000)).to_bytes(4,'little')
+        data = list(time_ms)
+        return task, data
+
+    def lights(self,state:bool):
+        task = 'FC_TSK_SetEXTIO'
+        ioSelect = 0x33
+        if state:
+            ioSet = 0x33
+        else:
+            ioSet = 0x00
+        data = [ioSelect,0,0,0,ioSet,0,0,0]
+        return task, data    
     
-    print('ACK:')
-    print([hex(i) for i in ack])
-    
-    s.close()
-    
-    
-def clear_mission():
-
-    msgid = msgids['Mis_Ctrl']  #message ID
-    
-    opcode = 'FC_TASK_OC_CLEAR'
-    task_type = None
-    task_data = None
-    payload = make_payload(opcode,task_type,task_data)
-    
-    PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
-    
-    msg = [start,PackLength,msgid,src,dest] + payload 
-    print('Sending clear')
-
-    send(msg)
-
-def start_tx():
-    msgid = msgids['Mis_Ctrl']  #message ID
-    
-    opcode = 'FC_TASK_OC_START'
-    task = None
-    data = []
-    payload = make_payload(opcode,task,data)
-    
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    
-    msg = [start,PackLength,msgid,src,dest] + payload
-
-    print('Sending start')
-    send(msg)
-
-
-def add_mission(task:str,data:list):
-    global task_id
-
-    msgid = msgids['Mis_Ctrl']  #message ID
-
-    opc = 'FC_TASK_OC_ADD'
-
-    payload = make_payload(opc,task,data)
-    
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    
-    msg = [start,PackLength,msgid,src,dest] + payload
-
-    print('Sending add')
-    send(msg)
-
-    task_id += 1
-    
-def exec_mission():
-    msgid = msgids['Mis_Ctrl']  #message ID
-    
-    opcode = 'FC_TASK_OC_START'
-    task = None
-    data = []
-    payload = make_payload(opcode,task,data)
-    
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-
-    msg = [start,PackLength,msgid,src,dest] + payload
-
-    print('Sending exec')
-    send(msg)
-
-def end_tx():
-    msgid = msgids['Mis_Ctrl']  #message ID
-    
-    opcode = 'FC_TASK_OC_TRAN_END'
-    task = None
-    data = []
-    payload = make_payload(opcode,task,data)
-    
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-
-    msg = [start,PackLength,msgid,src,dest] + payload 
-
-    print('Sending end')
-    send(msg)
-
-def lights(state:bool):
-    task = 'FC_TSK_SetEXTIO'
-    ioSelect = 0x33
-    if state:
-        ioSet = 0x33
-    else:
-        ioSet = 0x00
-    data = [ioSelect,0,0,0,ioSet,0,0,0]
-    return task, data    
-
-def wait(time:float):
-    task = 'FC_TSK_WAIT_MS'
-    time_ms = (int(time*1000)).to_bytes(4,'little')
-    data = list(time_ms)
-    return task, data
 
 if __name__ == '__main__':
-    
+    sp = splashdrone()
 #   [start,PackLength,msgid,src,dest] + opcode,task_id,task_type,task_data + [checksum]
     
     # clear_mission()
 
-    start_tx()
+    sp.start_tx()
     # msg1=[0xa6,0x08,0x34,0x04,0x01,   0x05,0x00,                                                    0x60]
 
-    task,data = lights(0)
-    add_mission(task,data)
+    task,data = sp.lights(0)
+    sp.add_task(task,data)
     # add light off
     # msg2=[0xa6,0x11,0x34,0x04,0x01,   0x03,0x00,0x09,  0x33,0x00,0x00,0x00,0x00,0x00,0x00,0x00,     0x97]
 
-    task,data = wait(3)
-    add_mission(task,data)
+    task,data = sp.wait(3)
+    sp.add_task(task,data)
     # add wait
     # msg3=[0xa6,0x0d,0x34,0x04,0x01,   0x03,0x01,0x0f,  0xb8,0x0b,0x00,0x00,                         0x21]
 
-    task,data = lights(1)
-    add_mission(task,data)
+    task,data = sp.lights(1)
+    sp.add_task(task,data)
     # add light on
     # msg4=[0xa6,0x11,0x34,0x04,0x01,   0x03,0x02,0x09,  0x33,0x00,0x00,0x00,0x33,0x00,0x00,0x00,     0xd2]
 
-    end_tx()
+    sp.end_tx()
     # end tx
     # msg5=[0xa6,0x08,0x34,0x04,0x01,   0xff,0xff,                                                    0x2b]
 
-
-    exec_mission()
+    sp.execute()
     # end_tx()
     # execute
     # msg6=[0xa6,0x08,0x34,0x04,0x01,   0x05,0x00,                                                    0x60]
