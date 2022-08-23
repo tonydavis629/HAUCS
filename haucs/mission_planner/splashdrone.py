@@ -53,11 +53,14 @@ class splashdrone():
     """
     Control the splashdrone 4 with python. Default wifi password is 12345678.
     """
-    def __init__(self):
+    def __init__(self): #,alt:int=100,speed:int=100
         self.src = 0x04 #ground control
         self.dest = 0x01 #flight control
         self.task_id = 0 #initial task id
         self.msgid = msgids['Mis_Ctrl'] #message ID
+        
+        # self.alt = alt -- maybe alt and speed are properties of the drone?
+        # self.speed = speed
 
     def clear_mission(self):     
         opcode = 'FC_TASK_OC_CLEAR'
@@ -182,14 +185,63 @@ class splashdrone():
         task = 'FC_TSK_Land'
         data = []
         self.add_task(task,data)
+        
+    def set_speed(self,speed:int):
+        """
+        speed: 0-65535 cm/s 
+        """
+        task = 'FC_TSK_SetSpeed'
+        # speed_b = (int(speed)).to_bytes(1,'little')
+        speed_b = struct.pack('<H',speed)
+        data = list(speed_b)
+        self.add_task(task,data)
+        
+    def set_alt(self,alt:int):
+        """
+        alt: altitude 0-65535 cm
+        """
+        task = 'FC_TSK_SetALT'
+        # alt_b = (int(alt)).to_bytes(2,'little')
+        alt_b = struct.pack('<h',alt)
+        data = list(alt_b)
+        self.add_task(task,data)
+        
+    def add_wp(self,lat:float=None,long:float=None,alt:int=None,speed:int=None,hovertime:int=None):
+        """
+        lat: latitude in 1e7 format
+        long: longitude in 1e7 format
+        alt: altitude 0-65535 cm
+        speed: 0-65535 cm/s
+        """
+        task = 'FC_TSK_WayPoint'
+        self.set_speed(speed)
+        self.set_alt(alt)
+        
+        hovertime_b = struct.pack('<H',hovertime)
+        
+        lat = round(lat * 1e7)
+        long = round(long * 1e7)
+        
+        lat_b = struct.pack('<i',lat) #little endian int32/int
+        long_b = struct.pack('<i',long)
+        
+        data = list(hovertime_b) + list(lat_b) + list(long_b)
+        self.add_task(task,data)
+
+    def return_home(self):
+        task = 'FC_TSK_RTH'
+        data = []
+        self.add_task(task,data)
 
 if __name__ == '__main__':
     sp = splashdrone()
     sp.start_tx()
-    sp.lights(0)
-    sp.set_home(27.535990635889608, -80.35388550334784)
+    # sp.lights(0)
+    # sp.set_home(27.535990635889608, -80.35388550334784)
     sp.takeoff(100)
     sp.wait(3)
+    sp.add_wp(lat=27.535990635889608,long=-80.35388550334784,alt=100,speed=100,hovertime=10)
+    sp.return_home()
     sp.land()
     # sp.lights(0)
     # sp.wait(3)
