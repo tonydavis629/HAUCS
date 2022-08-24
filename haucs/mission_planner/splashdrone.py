@@ -253,14 +253,27 @@ class splashdrone():
         prev_dest = self.dest
         self.dest = 0x03
 
-        task = 'FC_TSK_Gimbal'
+        task = 'FC_TSK_SetGimbal'
         # angle_b = (int(angle)).to_bytes(2,'little')
         roll_b = struct.pack('<h',roll)
         pitch_b = struct.pack('<h',pitch)
         yawn_b = struct.pack('<h',yaw)
         
-        data = [0x07] + list(roll_b) + list(pitch_b) + list(yawn_b)
-        print('Setting gimbal roll, pitch, yaw to ' + str(data))
+        data = list(roll_b) + list(pitch_b) + list(yawn_b)
+        print('Setting gimbal roll, pitch, yaw to', + str(roll) + ',' + str(pitch) + ',' + str(yaw))
+        self.add_task(task,data)
+        
+        self.dest = prev_dest
+
+    def take_pic(self):
+        prev_dest = self.dest
+        self.dest = 0x03
+        
+        task = 'FC_TSK_CAMERA'
+        
+        data = struct.pack('<I',0x33)
+        
+        print('Taking picture')
         self.add_task(task,data)
         
         self.dest = prev_dest
@@ -269,7 +282,8 @@ if __name__ == '__main__':
     sp = splashdrone()
     
     sp.start_tx()
-    sp.set_gimbal(30,30,30)
+    # sp.set_gimbal(30,30,30)
+    sp.take_pic()
     sp.end_tx()
     sp.execute()
     
