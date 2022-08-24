@@ -3,8 +3,8 @@ import numpy as np
 import pickle
 
 coords = np.loadtxt('./ponds.txt')
-arr, lat_range, long_range = coord2arr(coords)
-np.savetxt('ILnormcoords.txt',arr,delimiter=',',fmt='%f')
+# arr, lat_range, long_range = coord2arr(coords)
+# np.savetxt('ILnormcoords.txt',arr,delimiter=',',fmt='%f')
 
 
 # HPP, depot is the first point
@@ -17,4 +17,5 @@ solved_routes = np.split(all_routes,ind)[1:-1]
 
 for i, route in enumerate(solved_routes):
     final_route = coords[route,:] 
-    np.savetxt('./routes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
+    np.savetxt('./HPProutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
+

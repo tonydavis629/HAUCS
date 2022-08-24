@@ -12,7 +12,7 @@ if __name__ == "__main__":
         with open('GLOP_dataset'+str(i)+'.pkl', 'wb') as f:
             pickle.dump(GLOP, f, pickle.HIGHEST_PROTOCOL)
 
-        sized_ATSP_ds = data.build_ATSP_dataset_2()
+        sized_ATSP_ds = data.build_ATSP_dataset()
         with open('ATSP_ponddataset'+str(i)+'.pkl', 'wb') as f:
             pickle.dump(sized_ATSP_ds, f, pickle.HIGHEST_PROTOCOL)
 

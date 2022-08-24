@@ -210,28 +210,22 @@ class PondsDataset(ponds):
             spacing.append(farm.spacing)
         return (vertices, depot, loc, spacing)
 
-    # def build_ATSP_dataset(self):
-    #     """
-    #     Create the dataset
-    #     """
-    #     dataset = []
-    #     for _ in range(self.farms):
-    #         shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
-    #         multipoly,_  = shape.create_polygons(num_polygons=3)
-    #         ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
-    #         depot = ponddata.depot_loc
-    #         demand = np.ones(self.num_pts)
-    #         capacity = (self.num_pts/5) + 1
-    #         dataset.append((depot, ponddata.loc, demand, capacity))
-    #     return dataset
 
-    def build_ATSP_dataset_2(self):
+    def build_ATSP_dataset(self):
         dataset = []
         for farm in self.data:
             depot = farm.depot_loc
             demand = np.ones(self.num_pts)
             capacity = (self.num_pts/5) + 1
             dataset.append((depot, farm.loc, demand, capacity))
+        return dataset
+    
+    def load_ATSP_dataset(self):
+        dataset = []
+        depot = self.data[0]
+        demand = np.ones(len(self.data)-1)
+        capacity = (len(self.data)/3) + 1 # 3 drones
+        dataset.append((depot, self.data[1:], demand, capacity))
         return dataset
 
     # def build_GLOP_dataset(self):
