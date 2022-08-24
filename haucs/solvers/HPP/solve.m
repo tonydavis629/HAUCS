@@ -137,9 +137,9 @@ max_path_cost = 0;
 vehroute = [];
 for i=1:length(paths_list)
     if i ~= length(paths_list)
-        vehroute = [vehroute; nodeidx_list{i}; 0];
+        vehroute = [vehroute; 0; nodeidx_list{i}];
     elseif i == length(paths_list)
-        vehroute = [vehroute; nodeidx_list{i}];
+        vehroute = [vehroute; 0; nodeidx_list{i}; 0;];
     end
     path_cost = 0;
     for j=1:(length(paths_list{i})-1)
@@ -167,6 +167,7 @@ fprintf('avg_total_cost = %f\n',avg_total_cost)
 fprintf('avg_max_path = %f\n',avg_max_path)
 fprintf('time = %f\n',time)
 
-routes = cell2mat(all_vehroute);
-mat2np(routes,'HPProutes.pkl','int8')
+% routes = cell2mat(all_vehroute);
+mat2np(all_vehroute,'HPProutes.pkl','int8')
+
 
