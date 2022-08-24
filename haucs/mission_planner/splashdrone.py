@@ -255,9 +255,9 @@ class splashdrone():
 
         task = 'FC_TSK_Gimbal'
         # angle_b = (int(angle)).to_bytes(2,'little')
-        roll_b = struct.pack('<i',roll)
-        pitch_b = struct.pack('<i',pitch)
-        yawn_b = struct.pack('<i',yaw)
+        roll_b = struct.pack('<h',roll)
+        pitch_b = struct.pack('<h',pitch)
+        yawn_b = struct.pack('<h',yaw)
         
         data = [0x07] + list(roll_b) + list(pitch_b) + list(yawn_b)
         print('Setting gimbal roll, pitch, yaw to ' + str(data))
