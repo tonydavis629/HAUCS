@@ -1,6 +1,6 @@
 import socket
 import struct
-import numpy as np
+# import numpy as np
 
 start = 0xa6 #start flag for splash
 TCP_IP = '192.168.2.1' 
@@ -260,16 +260,23 @@ class splashdrone():
         data = struct.pack('<h',0x33)
         data = list(data)
         
-        print('Taking picture')
+        print('Activating payload')
         self.add_task(task,data)
 
 if __name__ == '__main__':
     sp = splashdrone()
     
-    route0 = np.loadtxt('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', delimiter=',')
+    route0 = []
+    with open('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            coord = line.strip('\n').split(',')
+            coord = [float(i) for i in coord]
+            route0.append(coord)
+            
     sp.start_tx()
     
-    sp.set_home(route0[0],route0[1])
+    sp.set_home(route0[0][0],route0[0][1])
     sp.takeoff(300)
     sp.wait(3)
     
