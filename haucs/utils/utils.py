@@ -1,14 +1,23 @@
 import numpy as np
 
+def normalize(x):
+    x = np.asarray(x)
+    return (x - x.min()) / (np.ptp(x))
+
 def coord2arr(coords):
     """
     Convert a set of lat,lon coordinates to a pond locations array between 0 and 1
     """
-    min_lat = min(coords[:,0])
-    max_lat = max(coords[:,0])
-    min_long = min(coords[:,1])
-    max_long = max(coords[:,1])
-    
+    lats = normalize(coords[:,0])
+    longs = normalize(coords[:,1])
+    return np.array([lats,longs]).T
+
+def save_norm_coords(coords, filename):
+    """
+    Save normalized coordinates to a file
+    """
+    norm_arr = coord2arr(coords)
+    np.savetxt(filename,norm_arr,delimiter=',',fmt='%f')
 
 def arr2coord(ponds, coord_range):
     """
@@ -27,7 +36,4 @@ def arr2coord(ponds, coord_range):
 
     cord = np.array([lat_cord, lon_cord]).T
     return cord
-    
-def normalize(x):
-    x = np.asarray(x)
-    return (x - x.min()) / (np.ptp(x))
+
