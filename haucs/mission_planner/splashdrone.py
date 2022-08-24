@@ -246,17 +246,17 @@ class splashdrone():
 
 if __name__ == '__main__':
     sp = splashdrone()
-    route0 = np.loadtxt('C:\Users\anthonydavis2020\Documents\github\HAUCS\scripts\routes0.txt')
+    route0 = np.loadtxt('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', delimiter=',')
     sp.start_tx()
     
     sp.set_home(route0[0,0],route0[0,1])
     sp.takeoff(300)
     sp.wait(3)
     
-    # for i in route0:
-    sp.add_wp(lat=27.53545833880001,long=-80.35250627784495,alt=300,speed=200,hovertime=10)  
-    sp.land()
-    #sp.activate_paylod
+    for pond in route0:
+        sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
+        sp.land()
+        #sp.activate_paylod
 
     sp.return_home()
     sp.end_tx()
