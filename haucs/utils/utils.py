@@ -8,9 +8,15 @@ def coord2arr(coords):
     """
     Convert a set of lat,lon coordinates to a pond locations array between 0 and 1
     """
+    min_lat = coords[:,0].min()
+    max_lat = coords[:,0].max()
+    min_long = coords[:,1].min()
+    max_long = coords[:,1].max()
+    lat_range = (min_lat, max_lat)
+    long_range = (min_long, max_long)
     lats = normalize(coords[:,0])
     longs = normalize(coords[:,1])
-    return np.array([lats,longs]).T
+    return np.array([lats,longs]).T, lat_range, long_range
 
 def save_norm_coords(coords, filename):
     """
