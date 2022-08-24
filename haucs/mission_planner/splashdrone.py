@@ -54,14 +54,11 @@ class splashdrone():
     """
     Control the splashdrone 4 with python. Default wifi password is 12345678.
     """
-    def __init__(self): #,alt:int=100,speed:int=100
+    def __init__(self): 
         self.src = 0x04 #ground control
         self.dest = 0x01 #flight control
         self.task_id = 0 #initial task id
         self.msgid = msgids['Mis_Ctrl'] #message ID
-        
-        # self.alt = alt -- maybe alt and speed are properties of the drone?
-        # self.speed = speed
 
     def clear_mission(self):     
         opcode = 'FC_TASK_OC_CLEAR'
@@ -137,7 +134,6 @@ class splashdrone():
 
     def wait(self,time:float):
         task = 'FC_TSK_WAIT_MS'
-        # time_ms = (int(time*1000)).to_bytes(4,'little')
         time_ms = struct.pack('<I',int(time*1000))
         data = list(time_ms)
         print('Waiting for ' + str(time) + ' seconds')
@@ -146,13 +142,11 @@ class splashdrone():
     def lights(self,state:bool):
         task = 'FC_TSK_SetEXTIO'
         ioSelect = 0x33
-        # ioSelect = ioSelect.to_bytes(4,'little')
         ioSelect = struct.pack('<i',ioSelect)
         if state:
             ioSet = 0x33
         else:
             ioSet = 0x00
-        # ioSet = ioSet.to_bytes(4,'little')
         ioSet = struct.pack('<i',ioSet)
         data = list(ioSelect) + list(ioSet)
         
@@ -180,7 +174,6 @@ class splashdrone():
         alt: altitude 0-65535 cm
         """
         task = 'FC_TSK_TakeOff'
-        # alt_b = (int(alt)).to_bytes(2,'little')
         alt_b = struct.pack('<h',alt) #little endian int16/short
         data = list(alt_b)
         
@@ -198,7 +191,6 @@ class splashdrone():
         speed: 0-65535 cm/s 
         """
         task = 'FC_TSK_SetSpeed'
-        # speed_b = (int(speed)).to_bytes(1,'little')
         speed_b = struct.pack('<H',speed)
         data = list(speed_b)
         print('Setting speed to ' + str(speed) + ' cm/s')
@@ -209,7 +201,6 @@ class splashdrone():
         alt: altitude 0-65535 cm
         """
         task = 'FC_TSK_SetALT'
-        # alt_b = (int(alt)).to_bytes(2,'little')
         alt_b = struct.pack('<h',alt)
         data = list(alt_b)
         print('Setting altitude to ' + str(alt) + ' cm')
@@ -254,7 +245,6 @@ class splashdrone():
         self.dest = 0x03
 
         task = 'FC_TSK_SetGimbal'
-        # angle_b = (int(angle)).to_bytes(2,'little')
         roll_b = struct.pack('<h',roll)
         pitch_b = struct.pack('<h',pitch)
         yawn_b = struct.pack('<h',yaw)
@@ -265,43 +255,35 @@ class splashdrone():
         
         self.dest = prev_dest
 
-    def take_pic(self):
-        prev_dest = self.dest
-        self.dest = 0x03
-        
+    def activate_payload(self):
         task = 'FC_TSK_CAMERA'
-        
-        data = struct.pack('<I',0x33)
+        data = struct.pack('<h',0x33)
+        data = list(data)
         
         print('Taking picture')
         self.add_task(task,data)
-        
-        self.dest = prev_dest
 
 if __name__ == '__main__':
     sp = splashdrone()
     
+    route0 = np.loadtxt('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', delimiter=',')
     sp.start_tx()
-    # sp.set_gimbal(30,30,30)
-    sp.take_pic()
+    
+    sp.set_home(route0[0],route0[1])
+    sp.takeoff(300)
+    sp.wait(3)
+    
+    for pond in route0:
+        sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
+        sp.activate_payload()
+        sp.land()
+        sp.wait(30)
+        sp.takeoff(300)
+        sp.activate_payload()
+        
+    sp.return_home()
     sp.end_tx()
     sp.execute()
-    
-    # route0 = np.loadtxt('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', delimiter=',')
-    # sp.start_tx()
-    
-    # sp.set_home(route0[0,0],route0[0,1])
-    # sp.takeoff(300)
-    # sp.wait(3)
-    
-    # for pond in route0:
-    #     sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
-    #     sp.land()
-    #     #sp.activate_paylod
-
-    # sp.return_home()
-    # sp.end_tx()
-    # sp.execute()
     
 
 
