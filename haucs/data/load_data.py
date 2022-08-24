@@ -10,11 +10,11 @@ if __name__ == "__main__":
     data = PondsDataset(farms=1, num_pts=5, xlims=[0, 1], ylims=[0, 1])
     data.data = ILponds
     
-    sized_ATSP_ds = data.load_ATSP_dataset()
-    with open('ATSP_ponddataset_IL.pkl', 'wb') as f:
-        pickle.dump(sized_ATSP_ds, f, pickle.HIGHEST_PROTOCOL)
+    # sized_ATSP_ds = data.load_ATSP_dataset()
+    # with open('ATSP_ponddataset_IL.pkl', 'wb') as f:
+    #     pickle.dump(sized_ATSP_ds, f, pickle.HIGHEST_PROTOCOL)
     
-    GLOP = data.build_GLOP_dataset_2()
+    GLOP = data.load_GLOP_dataset()
     with open('GLOP_dataset_IL.pkl', 'wb') as f:
         pickle.dump(GLOP, f, pickle.HIGHEST_PROTOCOL)
 
