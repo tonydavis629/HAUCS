@@ -244,23 +244,50 @@ class splashdrone():
         print('Returning home')
         self.add_task(task,data)
 
+    def set_gimbal(self,roll:float,pitch:float,yaw:float):
+        """
+        roll: +/- 0-90 degrees
+        pitch: +/- 0-45 degrees
+        yawn: +/- 0-45 degrees
+        """
+        prev_dest = self.dest
+        self.dest = 0x03
+
+        task = 'FC_TSK_Gimbal'
+        # angle_b = (int(angle)).to_bytes(2,'little')
+        roll_b = struct.pack('<i',roll)
+        pitch_b = struct.pack('<i',pitch)
+        yawn_b = struct.pack('<i',yaw)
+        
+        data = [0x07] + list(roll_b) + list(pitch_b) + list(yawn_b)
+        print('Setting gimbal roll, pitch, yaw to ' + str(data))
+        self.add_task(task,data)
+        
+        self.dest = prev_dest
+
 if __name__ == '__main__':
     sp = splashdrone()
-    route0 = np.loadtxt('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', delimiter=',')
+    
     sp.start_tx()
-    
-    sp.set_home(route0[0,0],route0[0,1])
-    sp.takeoff(300)
-    sp.wait(3)
-    
-    for pond in route0:
-        sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
-        sp.land()
-        #sp.activate_paylod
-
-    sp.return_home()
+    sp.set_gimbal(30,30,30)
     sp.end_tx()
     sp.execute()
+    
+    # route0 = np.loadtxt('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', delimiter=',')
+    # sp.start_tx()
+    
+    # sp.set_home(route0[0,0],route0[0,1])
+    # sp.takeoff(300)
+    # sp.wait(3)
+    
+    # for pond in route0:
+    #     sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
+    #     sp.land()
+    #     #sp.activate_paylod
+
+    # sp.return_home()
+    # sp.end_tx()
+    # sp.execute()
     
 
 
