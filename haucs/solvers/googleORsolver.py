@@ -168,9 +168,14 @@ def main(data):
 if __name__ == '__main__':
     # for vrp_size in [100]:
         # print(f'Solving for vrp_size: {vrp_size}')
-    filename = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\GLOP_dataset_IL.pkl'
     tic = time.perf_counter()
+    filename = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\GLOP_dataset_IL.pkl'
     data = load_data_model(filename)
+    data = data[0]
+    data['distance_matrix'] = [[int(i) for i in row] for row in data['distance_matrix']]
+    data = [data]
+    # data = load_data_model(filename)
+    
     maxrtdist_results, totdist_results, routeslist = [],[],[]
     for sample in data:
         max_route_dist, total_distance, routes = main(sample)

@@ -19,13 +19,21 @@ arr, lat_range, long_range = coord2arr(coords)
 #     final_route = coords[route,:] 
 #     np.savetxt('./HPProutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
 
-
-with open('GM_routes.pkl','rb') as routes:
+# #GM
+# with open('GM_routes.pkl','rb') as routes:
+#     all_routes = pickle.load(routes)
+#     all_routes = all_routes[0]
+    
+# for i, route in enumerate(all_routes):
+#     final_route = coords[route,:]
+#     final_route = np.insert(final_route,0,coords[0],axis=0) #insert depot
+#     np.savetxt('./GMroutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
+    
+    
+    
+with open('GLOP_routes_IL.pkl','rb') as routes:
     all_routes = pickle.load(routes)
-    all_routes = all_routes[0]
     
 for i, route in enumerate(all_routes):
-    # final_route = arr[0] # depot
     final_route = coords[route,:]
-    final_route = np.insert(final_route,0,coords[0],axis=0)
-    np.savetxt('./GMroutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
+    np.savetxt('./GLOProutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
