@@ -1,5 +1,5 @@
 % load manually input ponds for live testing. Must be normalized first.
-ponds = load("ILnormcoords.txt");
+ponds = load("C:\Users\anthonydavis2020\Documents\github\HAUCS\haucs\ILnormcoords.txt");
 ponds = ponds(2:end,:);
 depot = ponds(1,:);
 dist_mat = pdist2(ponds,ponds);

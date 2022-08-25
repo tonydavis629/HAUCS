@@ -33,6 +33,7 @@ arr, lat_range, long_range = coord2arr(coords)
     
 with open('GLOP_routes_IL.pkl','rb') as routes:
     all_routes = pickle.load(routes)
+    all_routes = all_routes[0]
     
 for i, route in enumerate(all_routes):
     final_route = coords[route,:]

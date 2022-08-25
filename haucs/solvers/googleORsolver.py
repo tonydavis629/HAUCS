@@ -67,12 +67,12 @@ def gen_routes(data, manager, routing, solution):
     max_route_distance = 0
     total_distance = 0
     routes = []
-    plan_output = []
+    
     for vehicle_id in range(data['num_vehicles']):
         index = routing.Start(vehicle_id)
         # plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
         route_distance = 0
-        
+        plan_output = []    
         while not routing.IsEnd(index):
             plan_output.append(manager.IndexToNode(index))
             previous_index = index
@@ -182,6 +182,7 @@ if __name__ == '__main__':
         maxrtdist_results.append(max_route_dist)
         totdist_results.append(total_distance)
         routeslist.append(routes)
+    print(routeslist)
     toc = time.perf_counter()
     tottime = toc - tic
     print(f'Total time: {tottime}')
@@ -192,5 +193,5 @@ if __name__ == '__main__':
     print(f'Average max route distance: {avg_maxrt}')
     print(f'Average total distance: {avg_totdist}')
 
-    with open('GLOP_routes_IL.pkl', 'wb') as f:
+    with open('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\GLOP_routes_IL.pkl', 'wb') as f:
         pickle.dump(routeslist, f, pickle.HIGHEST_PROTOCOL)
