@@ -283,7 +283,8 @@ if __name__ == '__main__':
         sp.takeoff(300)
         sp.activate_payload()
     
-    sp.return_home()
+    # sp.return_home()
+    sp.add_wp(home[0],home[1],300,200,10)
     sp.end_tx()
     sp.execute()
     
