@@ -1,3 +1,14 @@
+% load manually input ponds for live testing. Must be normalized first.
+ponds = load("C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\ILnormcoords.txt");
+ponds = ponds(2:end,:);
+depot = ponds(1,:);
+dist_mat = pdist2(ponds,ponds);
+spacing = min(squareform(dist_mat)); %.65; % find minimum spacing between ponds
+vert_pts = convhull(ponds);
+% plot(ponds(vert_pts,1),ponds(vert_pts,2))
+vertices = ponds(vert_pts,:);
+
+
 tic
 
 num_drones = 3;
@@ -168,6 +179,6 @@ fprintf('avg_max_path = %f\n',avg_max_path)
 fprintf('time = %f\n',time)
 
 % routes = cell2mat(all_vehroute);
-mat2np(all_vehroute,'HPProutes.pkl','int8')
+mat2np(all_vehroute,'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes.pkl','int8')
 
 
