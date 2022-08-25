@@ -308,7 +308,7 @@ if __name__ == '__main__':
     #     sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
     #     sp.activate_payload()
     #     sp.land()
-    #     sp.wait(30)
+    #     sp.wait(20)
     #     sp.takeoff(300)
     #     sp.activate_payload()
         
