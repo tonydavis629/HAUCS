@@ -15,9 +15,14 @@ with open('HPProutes.pkl','rb') as routes:
 ind = np.where(all_routes == 0)[0]
 solved_routes = np.split(all_routes,ind)[1:-1]
 
+tour = [] #used for plotting in atsp
 for i, route in enumerate(solved_routes):
+    tour.extend(list(route[1:]) + [0])
     final_route = coords[route,:] 
     np.savetxt('./HPProutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
+tour = tour[:-1] # remove last zero
+with open('HPPtour.pkl','wb') as tourfile:
+    pickle.dump(tour,tourfile)
 
 # run atsp/plot_vrp.ipynb
 #GM, no depot in routes

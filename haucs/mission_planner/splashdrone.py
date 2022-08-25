@@ -111,8 +111,8 @@ class splashdrone():
         return payload
 
     def send(self,opc,task,data):
-        # s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # s.connect((TCP_IP, TCP_PORT))
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((TCP_IP, TCP_PORT))
 
         payload = self.make_payload(opc,task,data)
         
@@ -124,13 +124,13 @@ class splashdrone():
         packet = msg + [checksum]
         print([hex(item) for item in packet])
 
-        # s.send(bytes(packet))
-        # ack = s.recv(BUFFER_SIZE) 
+        s.send(bytes(packet))
+        ack = s.recv(BUFFER_SIZE) 
         
-        # print('ACK:')
-        # print([hex(i) for i in ack])
+        print('ACK:')
+        print([hex(i) for i in ack])
         
-        # s.close()
+        s.close()
 
     def wait(self,time:float):
         task = 'FC_TSK_WAIT_MS'
@@ -266,31 +266,55 @@ class splashdrone():
 if __name__ == '__main__':
     sp = splashdrone()
     
-    route0 = []
-    with open('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', 'r') as f:
-        lines = f.readlines()
-        for line in lines:
-            coord = line.strip('\n').split(',')
-            coord = [float(i) for i in coord]
-            route0.append(coord)
-            
-    sp.start_tx()
+    home = [27.53553982543517, -80.35212724345607]
+    pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]]
     
-    sp.set_home(route0[0][0],route0[0][1])
+    sp.start_tx()
+    sp.set_home(home[0],home[1])
+    
     sp.takeoff(300)
     sp.wait(3)
     
-    for pond in route0:
-        sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
+    for pt in pts:
+        sp.add_wp(pt[0],pt[1],300,200,10)
         sp.activate_payload()
         sp.land()
         sp.wait(30)
         sp.takeoff(300)
         sp.activate_payload()
-        
+    
     sp.return_home()
     sp.end_tx()
     sp.execute()
+    
+    
+    #### actual test
+    
+    # route0 = []
+    # with open('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', 'r') as f:
+    #     lines = f.readlines()
+    #     for line in lines:
+    #         coord = line.strip('\n').split(',')
+    #         coord = [float(i) for i in coord]
+    #         route0.append(coord)
+            
+    # sp.start_tx()
+    
+    # sp.set_home(route0[0][0],route0[0][1])
+    # sp.takeoff(300)
+    # sp.wait(3)
+    
+    # for pond in route0:
+    #     sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
+    #     sp.activate_payload()
+    #     sp.land()
+    #     sp.wait(30)
+    #     sp.takeoff(300)
+    #     sp.activate_payload()
+        
+    # sp.return_home()
+    # sp.end_tx()
+    # sp.execute()
     
 
 
