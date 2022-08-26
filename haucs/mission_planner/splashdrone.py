@@ -1,11 +1,12 @@
 import socket
 import struct
-# import numpy as np
+import os
 
 start = 0xa6 #start flag for splash
 TCP_IP = '192.168.2.1' 
 TCP_PORT = 2022      
 BUFFER_SIZE = 64
+ROUTERS = ['SWP-BC06E4']
 
 #message checksum computed by table lookup
 CRC8_Table =[
@@ -318,15 +319,29 @@ def load_files(save_dir:str, route_name:str):
         routes.append(pts)    
     return routes
 
+def wifi_connect(wifi_name:str):
+    """
+    Connect to a known wifi router. Only works in windows.
+    """
+    os.system('cmd /c "netsh wlan show networks"')
+    os.system(f'''cmd /c "netsh wlan connect name={wifi_name}"''')
+
 if __name__ == '__main__':
     sp = splashdrone()
     
     save_dir = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\'
     routes = load_files(save_dir,'HPProutes')
     for i, route in enumerate(routes):
-        print(f'Route {i}')
-        for pt in route:
-            print(pt)
+        
+        wifi_connect(ROUTERS[i])
+        
+        home = route[0]
+        pts = route[1:]
+        alt = 300
+        speed = 200
+        wait = 4
+        sp.run(home,pts,alt,speed,wait)
+
     
     # pts = pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]] # pond
     # home = [27.53553982543517, -80.35212724345607] # pond
@@ -337,38 +352,4 @@ if __name__ == '__main__':
     # speed = 200
     # wait = 4
     # sp.run(home,pts,alt,speed,wait)
-    
-   
-    
-    
-    #### actual test
-    
-    # route0 = []
-    # with open('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', 'r') as f:
-    #     lines = f.readlines()
-    #     for line in lines:
-    #         coord = line.strip('\n').split(',')
-    #         coord = [float(i) for i in coord]
-    #         route0.append(coord)
-            
-    # sp.start_tx()
-    
-    # sp.set_home(route0[0][0],route0[0][1])
-    # sp.takeoff(300)
-    # sp.wait(3)
-    
-    # for pond in route0:
-    #     sp.add_wp(lat=pond[0],long=pond[1],alt=300,speed=200,hovertime=5)  
-    #     sp.activate_payload()
-    #     sp.land()
-    #     sp.wait(20)
-    #     sp.takeoff(300)
-    #     sp.activate_payload()
-        
-    # sp.return_home()
-    # sp.end_tx()
-    # sp.execute()
-    
-
-
     
