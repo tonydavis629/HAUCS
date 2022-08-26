@@ -6,7 +6,12 @@ start = 0xa6 #start flag for splash
 TCP_IP = '192.168.2.1' 
 TCP_PORT = 2022      
 BUFFER_SIZE = 64
-ROUTERS = ['SWP-B27A58'] #['SWP-BC06E4'] # ['SWP-B27A58'],' 
+own = 'SWP-BC06E4'
+baf = 'SWP-B27A58'
+new = 'SWP-BBB467'
+ROUTERS = [own,baf,new]
+
+
 SAVE_DIR = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\'
 ROUTE_TYPE = 'HPProutes'
 
