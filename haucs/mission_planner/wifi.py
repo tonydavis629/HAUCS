@@ -43,8 +43,8 @@ class Finder:
 if __name__ == "__main__":
     # Server_name is a case insensitive string, and/or regex pattern which demonstrates
     # the name of targeted WIFI device or a unique part of it.
-    server_name = "SWP_BC06E$"
-    password = "1234567"
+    server_name = "SWP_BC06E4" #B27A5B
+    password = "12345678"
     interface_name = "your_interface_name" # i. e wlp2s0  
     F = Finder(server_name=server_name,
                password=password,
