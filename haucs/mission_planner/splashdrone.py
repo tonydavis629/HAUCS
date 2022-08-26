@@ -6,7 +6,9 @@ start = 0xa6 #start flag for splash
 TCP_IP = '192.168.2.1' 
 TCP_PORT = 2022      
 BUFFER_SIZE = 64
-ROUTERS = ['SWP-BC06E4']
+ROUTERS = ['SWP-B27A58'] #['SWP-BC06E4'] # ['SWP-B27A58'],' 
+SAVE_DIR = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\'
+ROUTE_TYPE = 'HPProutes'
 
 #message checksum computed by table lookup
 CRC8_Table =[
@@ -301,7 +303,6 @@ def load_pts(filename:str):
             coord = line.strip('\n').split(',')
             coord = [float(i) for i in coord]
             pts.append(coord)
-            # pts.append([float(line[0]),float(line[1])])
     return pts
 
 def load_files(save_dir:str, route_name:str):
@@ -329,27 +330,27 @@ def wifi_connect(wifi_name:str):
 if __name__ == '__main__':
     sp = splashdrone()
     
-    save_dir = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\'
-    routes = load_files(save_dir,'HPProutes')
-    for i, route in enumerate(routes):
+
+    # routes = load_files(SAVE_DIR,ROUTE_TYPE)
+    # for i, route in enumerate(routes):
         
-        wifi_connect(ROUTERS[i])
+    #     wifi_connect(ROUTERS[i])
         
-        home = route[0]
-        pts = route[1:]
-        alt = 300
-        speed = 200
-        wait = 4
-        sp.run(home,pts,alt,speed,wait)
+    #     home = route[0]
+    #     pts = route[1:]
+    #     alt = 300
+    #     speed = 200
+    #     wait = 4
+    #     sp.run(home,pts,alt,speed,wait)
 
     
     # pts = pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]] # pond
     # home = [27.53553982543517, -80.35212724345607] # pond
 
-    # pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
-    # home = [27.53543337815902, -80.35211715513375] #land
-    # alt = 300
-    # speed = 200
-    # wait = 4
-    # sp.run(home,pts,alt,speed,wait)
+    pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
+    home = [27.53543337815902, -80.35211715513375] #land
+    alt = 300
+    speed = 200
+    wait = 4
+    sp.run(home,pts,alt,speed,wait)
     
