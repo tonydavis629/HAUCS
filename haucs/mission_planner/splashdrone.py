@@ -268,21 +268,23 @@ class splashdrone():
         
                 
         self.takeoff(300)
-        self.set_home(home[0],home[1])
-        self.wait(3)
+        # self.set_home(home[0],home[1])
+        self.wait(5)
         
         for pt in pts:
-            self.add_wp(pt[0],pt[1],300,100,10)
+            self.add_wp(pt[0],pt[1],300,100,5)
             # sp.activate_payload()
             self.land()
-            self.wait(10)
+            self.wait(5)
+            self.takeoff(300)
             # self.add_wp(pt[0],pt[1],300,100,10)
 
             # sp.takeoff(300)
             # sp.activate_payload()
          
-        self.return_home()
-        # sp.add_wp(home[0],home[1],300,100,10)
+        # self.return_home()
+        sp.add_wp(home[0],home[1],300,100,5)
+        sp.land()
         self.end_tx()
         self.execute()
 
