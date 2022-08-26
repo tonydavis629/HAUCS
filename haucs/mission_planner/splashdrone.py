@@ -264,26 +264,27 @@ class splashdrone():
         self.add_task(task,data)
         
         
-    def run(self,home:list,pts:list[list[float]]):
+    def run(self,home:list,pts:list[list[float]], alt:int, speed:int, wait:int):
+        """
+        home: list of lat long for the home location
+        pts: list of list of lat longs for each point to visit
+        alt: altitude in cm 0-65355
+        speed: speed in cm/2 0-65355
+        wait: wait time between points in seconds
+        """
         
-                
-        self.takeoff(300)
-        # self.set_home(home[0],home[1])
-        self.wait(5)
+        self.takeoff(alt)
+        self.wait(wait)
         
         for pt in pts:
-            self.add_wp(pt[0],pt[1],300,100,5)
-            # sp.activate_payload()
+            self.add_wp(pt[0],pt[1],alt,speed,wait)
+            sp.activate_payload()
             self.land()
-            self.wait(5)
-            self.takeoff(300)
-            # self.add_wp(pt[0],pt[1],300,100,10)
-
-            # sp.takeoff(300)
-            # sp.activate_payload()
+            self.wait(wait)
+            self.takeoff(alt)
+            sp.activate_payload()
          
-        # self.return_home()
-        sp.add_wp(home[0],home[1],300,100,5)
+        sp.add_wp(home[0],home[1],alt,speed,wait)
         sp.land()
         self.end_tx()
         self.execute()
@@ -294,8 +295,11 @@ if __name__ == '__main__':
     # pts = pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]] # pond
     # home = [27.53553982543517, -80.35212724345607] # pond
     pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
-    home = [27.53555201205205, -80.35210655579225] #land
-    sp.run(home,pts)
+    home = [27.53543337815902, -80.35211715513375] #land
+    alt = 300
+    speed = 100
+    wait = 5
+    sp.run(home,pts,alt,speed,wait)
     
    
     
