@@ -280,7 +280,7 @@ class splashdrone():
             self.add_wp(pt[0],pt[1],alt,speed,wait)
             sp.activate_payload()
             self.land()
-            self.wait(wait)
+            self.wait(30)
             self.takeoff(alt)
             sp.activate_payload()
          
@@ -294,11 +294,12 @@ if __name__ == '__main__':
     
     # pts = pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]] # pond
     # home = [27.53553982543517, -80.35212724345607] # pond
+
     pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
     home = [27.53543337815902, -80.35211715513375] #land
     alt = 300
-    speed = 100
-    wait = 5
+    speed = 200
+    wait = 4
     sp.run(home,pts,alt,speed,wait)
     
    
