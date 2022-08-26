@@ -1,7 +1,6 @@
 import socket
 import struct
-import os
-from xml.etree.ElementInclude import include
+# import numpy as np
 
 start = 0xa6 #start flag for splash
 TCP_IP = '192.168.2.1' 
@@ -264,67 +263,37 @@ class splashdrone():
         print('Activating payload')
         self.add_task(task,data)
         
-    def pond_test(self):
         
-        home = [27.53553982543517, -80.35212724345607]
-        pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]]
+    def run(self,home:list,pts:list[list[float]]):
         
-        self.start_tx()
+                
+        self.takeoff(300)
         self.set_home(home[0],home[1])
-        
-        self.takeoff(300)
         self.wait(3)
         
         for pt in pts:
             self.add_wp(pt[0],pt[1],300,100,10)
-            self.activate_payload()
+            # sp.activate_payload()
             self.land()
-            self.wait(30)
-            self.activate_payload()
-        
-        # sp.return_home()
-        self.add_wp(home[0],home[1],300,200,10)
-        self.end_tx()
-        self.execute()
-        
-    def land_test(self):
-        home = [27.53555201205205, -80.35210655579225]
-        pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]]
-        
-        self.takeoff(300)
-        self.wait(3)
-        
-        for pt in pts:
-            self.add_wp(pt[0],pt[1],300,100,10)
-            self.activate_payload()
-            self.land()
-            self.wait(30)
-            # self.takeoff(300)
+            self.wait(10)
             # self.add_wp(pt[0],pt[1],300,100,10)
-            self.activate_payload()
-        
+
+            # sp.takeoff(300)
+            # sp.activate_payload()
+         
         self.return_home()
-        # self.add_wp(home[0],home[1],300,100,10)
+        # sp.add_wp(home[0],home[1],300,100,10)
         self.end_tx()
         self.execute()
-        
-    def parse_routes(self,file_name:str) -> list:
-        """
-        Form a list of routes from the route text files
-        """
-        files = os.listdir('.')
-        for file in files:
-            if file_name in file:
-                with open('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes0.txt', 'r') as f:
-                lines = f.readlines()
-                for line in lines:
-                    coord = line.strip('\n').split(',')
-                    coord = [float(i) for i in coord]
-                    route0.append(coord)
+
 if __name__ == '__main__':
     sp = splashdrone()
     
-    sp.land_test()
+    # pts = pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]] # pond
+    # home = [27.53553982543517, -80.35212724345607] # pond
+    pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
+    home = [27.53555201205205, -80.35210655579225] #land
+    sp.run(home,pts)
     
    
     
