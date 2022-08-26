@@ -9,23 +9,23 @@ coords = np.loadtxt('./ponds.txt') #first point is the depot
 #run solvers/HPP/solve.m first
 # # # # # # HPP # # # # # # # 
 # depot is the first point of each route
-# with open('HPProutes.pkl','rb') as routes:
-#     all_routes = pickle.load(routes)
-#     all_routes = all_routes.squeeze()
+with open('HPProutes.pkl','rb') as routes:
+    all_routes = pickle.load(routes)
+    all_routes = all_routes.squeeze()
 
-# ind = np.where(all_routes == 0)[0]
-# solved_routes = np.split(all_routes,ind)[1:-1]
+ind = np.where(all_routes == 0)[0]
+solved_routes = np.split(all_routes,ind)[1:-1]
 
-# tour = [] #used for plotting in atsp
-# for i, route in enumerate(solved_routes):
-#     tour.extend(list(route[1:]) + [0])
-#     final_route = coords[route,:] 
-#     np.savetxt('./HPProutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
+tour = [] #used for plotting in atsp
+for i, route in enumerate(solved_routes):
+    tour.extend(list(route[1:]) + [0])
+    final_route = coords[route,:] 
+    np.savetxt('./HPProutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
     
-# tour = tour[:-1] # remove last zero
-# with open('HPPtour.pkl','wb') as tourfile:
-#     pickle.dump(tour,tourfile)
-# print(tour)
+tour = tour[:-1] # remove last zero
+with open('HPPtour.pkl','wb') as tourfile:
+    pickle.dump(tour,tourfile)
+print(tour)
 
 # run atsp/plot_vrp.ipynb
 # # # # # # # GM # # # # # # # # 
@@ -42,15 +42,15 @@ coords = np.loadtxt('./ponds.txt') #first point is the depot
     
 # # # # # # # # GLOP # # # # # # # # # 
 # depot is the first point of each route
-with open('GLOP_routes_IL.pkl','rb') as routes:
-    all_routes = pickle.load(routes)
-    all_routes = all_routes[0]
+# with open('GLOP_routes_IL.pkl','rb') as routes:
+#     all_routes = pickle.load(routes)
+#     all_routes = all_routes[0]
     
-tour = []
-for i, route in enumerate(all_routes):
-    tour.extend(list(route[1:]) + [0])
-    final_route = coords[route,:]
-    np.savetxt('./GLOProutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
+# tour = []
+# for i, route in enumerate(all_routes):
+#     tour.extend(list(route[1:]) + [0])
+#     final_route = coords[route,:]
+#     np.savetxt('./GLOProutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
 
-tour = tour[:-1] # remove last zero
-print(tour)
+# tour = tour[:-1] # remove last zero
+# print(tour)
