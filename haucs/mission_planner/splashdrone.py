@@ -262,30 +262,57 @@ class splashdrone():
         
         print('Activating payload')
         self.add_task(task,data)
+        
+    def pond_test():
+        
+        home = [27.53553982543517, -80.35212724345607]
+        pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]]
+        
+        sp.start_tx()
+        sp.set_home(home[0],home[1])
+        
+        sp.takeoff(300)
+        sp.wait(3)
+        
+        for pt in pts:
+            sp.add_wp(pt[0],pt[1],300,100,10)
+            sp.activate_payload()
+            sp.land()
+            sp.wait(30)
+            sp.takeoff(300)
+            sp.activate_payload()
+        
+        # sp.return_home()
+        sp.add_wp(home[0],home[1],300,200,10)
+        sp.end_tx()
+        sp.execute()
+        
+    def land_test():
+        home = [27.53555201205205, -80.35210655579225]
+        pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]]
+        
+        sp.takeoff(300)
+        sp.wait(3)
+        
+        for pt in pts:
+            sp.add_wp(pt[0],pt[1],300,100,10)
+            sp.activate_payload()
+            sp.land()
+            sp.wait(30)
+            sp.takeoff(300)
+            sp.activate_payload()
+        
+        # sp.return_home()
+        sp.add_wp(home[0],home[1],300,100,10)
+        sp.end_tx()
+        sp.execute()
 
 if __name__ == '__main__':
     sp = splashdrone()
     
-    home = [27.53553982543517, -80.35212724345607]
-    pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]]
+    sp.land_test()
     
-    sp.start_tx()
-    sp.set_home(home[0],home[1])
-    
-    sp.takeoff(300)
-    sp.wait(3)
-    
-    for pt in pts:
-        sp.add_wp(pt[0],pt[1],300,200,10)
-        sp.activate_payload()
-        sp.land()
-        sp.wait(30)
-        sp.takeoff(300)
-        sp.activate_payload()
-    
-    sp.return_home()
-    sp.end_tx()
-    sp.execute()
+   
     
     
     #### actual test
