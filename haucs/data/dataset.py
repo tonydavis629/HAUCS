@@ -156,48 +156,6 @@ class PondsDataset(ponds):
         return dataset
         
 
-    # def build_dm_dataset(self):
-    #     """
-    #     Create the dataset
-    #     """
-    #     dataset = []
-    #     for _ in range(self.farms):
-    #         shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
-    #         multipoly,_  = shape.create_polygons(num_polygons=3)
-    #         ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
-    #         dataset.append(ponddata.distance_matrix)
-    #     return dataset
-
-    # def build_loc_dataset(self):
-    #     """
-    #     Create the dataset
-    #     """
-    #     dataset = []
-    #     for _ in range(self.farms):
-    #         shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
-    #         multipoly,_  = shape.create_polygons(num_polygons=3)
-    #         ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
-    #         dataset.append(ponddata.loc)
-    #     return dataset
-
-    # def build_shamos_dataset(self):
-    #     """
-    #     Create the dataset
-    #     """
-    #     vertices = []
-    #     loc = []
-    #     depot = []
-    #     spacing = []
-    #     for _ in range(self.farms):
-    #         shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
-    #         multipoly,vrtxset  = shape.create_polygons(num_polygons=3)
-    #         ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
-    #         spacing.append(ponddata.spacing)
-    #         vertices.append(vrtxset)
-    #         depot.append(ponddata.depot_loc)
-    #         loc.append(ponddata.loc)
-    #     return (vertices, depot, loc, spacing)
-
     def build_HPP_dataset(self):
         vertices = []
         loc = []
@@ -210,22 +168,8 @@ class PondsDataset(ponds):
             spacing.append(farm.spacing)
         return (vertices, depot, loc, spacing)
 
-    # def build_ATSP_dataset(self):
-    #     """
-    #     Create the dataset
-    #     """
-    #     dataset = []
-    #     for _ in range(self.farms):
-    #         shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
-    #         multipoly,_  = shape.create_polygons(num_polygons=3)
-    #         ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
-    #         depot = ponddata.depot_loc
-    #         demand = np.ones(self.num_pts)
-    #         capacity = (self.num_pts/5) + 1
-    #         dataset.append((depot, ponddata.loc, demand, capacity))
-    #     return dataset
 
-    def build_ATSP_dataset_2(self):
+    def build_ATSP_dataset(self):
         dataset = []
         for farm in self.data:
             depot = farm.depot_loc
@@ -233,32 +177,16 @@ class PondsDataset(ponds):
             capacity = (self.num_pts/5) + 1
             dataset.append((depot, farm.loc, demand, capacity))
         return dataset
+    
+    def load_ATSP_dataset(self):
+        dataset = []
+        depot = self.data[0]
+        demand = np.ones(len(self.data)-1)
+        capacity = (len(self.data)/3) + 1 # 3 drones
+        dataset.append((depot, self.data[1:], demand, capacity))
+        return dataset
 
-    # def build_GLOP_dataset(self):
-    #     """
-    #     Create the dataset for google OR-tools
-        
-    #     Clean this up!
-    #     """
-    #     dataset = []
-    #     for _ in range(self.farms):
-    #         shape = polygon(num_vrtx=self.num_vrtx, xlims=self.xlims, ylims=self.ylims)
-    #         multipoly,_  = shape.create_polygons(num_polygons=3)
-    #         ponddata = ponds(num_pts=self.num_pts, polygon=multipoly)
-            
-    #         nodes = np.array(ponddata.loc)
-    #         depot = ponddata.depot_loc
-    #         node_depot = np.insert(nodes, 0, depot, axis=0)
-            
-    #         scaled = node_depot*1000
-    #         dm = dist_matrix(scaled)
-
-    #         farm_dic = {'distance_matrix': dm, 'depot': 0, 'num_vehicles' : 5 }
-
-    #         dataset.append(farm_dic)
-    #     return dataset
-
-    def build_GLOP_dataset_2(self):
+    def build_GLOP_dataset(self):
         dataset = []
         for farm in self.data:
             nodes = np.array(farm.loc)
@@ -271,6 +199,17 @@ class PondsDataset(ponds):
             farm_dic = {'distance_matrix': dm, 'depot': 0, 'num_vehicles' : 5 }
 
             dataset.append(farm_dic)
+        return dataset
+    
+    def load_GLOP_dataset(self):
+        dataset = []
+              
+        scaled = self.data*1000
+        dm = dist_matrix(scaled)
+
+        farm_dic = {'distance_matrix': dm, 'depot': 0, 'num_vehicles' : 3 }
+
+        dataset.append(farm_dic)
         return dataset
 
 def node_data(size, lims):

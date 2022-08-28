@@ -36,4 +36,8 @@ Important considerations are the optimal gap and computational complexity. Aquac
 
 [3] Google. (n.d.). Vehicle routing problem | OR-tools | google developers. Google. Retrieved January 18, 2022, from https://developers.google.com/optimization/routing/vrp 
 
+#### Further reading
 
+https://arxiv.org/abs/2204.09753
+
+Please cite my work if you use this code! 

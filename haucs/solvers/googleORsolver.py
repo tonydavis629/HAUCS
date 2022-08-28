@@ -18,9 +18,9 @@ import time
 from haucs.data.dataset import PondsDataset
 
 
-def load_data_model(vrp_size):
+def load_data_model(filename):
     "Load the data from HAUCS"
-    filename = 'GLOP_dataset' + str(vrp_size) + '.pkl'
+    # filename = 'GLOP_dataset' + str(vrp_size) + '.pkl'
     data = pickle.load(open(filename, 'rb'))
     return data
 
@@ -67,12 +67,12 @@ def gen_routes(data, manager, routing, solution):
     max_route_distance = 0
     total_distance = 0
     routes = []
-    plan_output = []
+    
     for vehicle_id in range(data['num_vehicles']):
         index = routing.Start(vehicle_id)
         # plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
         route_distance = 0
-        
+        plan_output = []    
         while not routing.IsEnd(index):
             plan_output.append(manager.IndexToNode(index))
             previous_index = index
@@ -166,25 +166,32 @@ def main(data):
 
 
 if __name__ == '__main__':
-    for vrp_size in [100]:
-        print(f'Solving for vrp_size: {vrp_size}')
-        tic = time.perf_counter()
-        data = load_data_model(vrp_size)
-        maxrtdist_results, totdist_results, routeslist = [],[],[]
-        for sample in data:
-            max_route_dist, total_distance, routes = main(sample)
-            maxrtdist_results.append(max_route_dist)
-            totdist_results.append(total_distance)
-            routeslist.append(routes)
-        toc = time.perf_counter()
-        tottime = toc - tic
-        print(f'Total time: {tottime}')
-        maxrtdist_results = np.array(maxrtdist_results)
-        totdist_results = np.array(totdist_results)
-        avg_maxrt = np.mean(maxrtdist_results)
-        avg_totdist = np.mean(totdist_results)
-        print(f'Average max route distance: {avg_maxrt}')
-        print(f'Average total distance: {avg_totdist}')
+    # for vrp_size in [100]:
+        # print(f'Solving for vrp_size: {vrp_size}')
+    tic = time.perf_counter()
+    filename = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\GLOP_dataset_ILsmall.pkl'
+    data = load_data_model(filename)
+    data = data[0]
+    data['distance_matrix'] = [[int(i) for i in row] for row in data['distance_matrix']]
+    data = [data]
+    # data = load_data_model(filename)
+    
+    maxrtdist_results, totdist_results, routeslist = [],[],[]
+    for sample in data:
+        max_route_dist, total_distance, routes = main(sample)
+        maxrtdist_results.append(max_route_dist)
+        totdist_results.append(total_distance)
+        routeslist.append(routes)
+    print(routeslist)
+    toc = time.perf_counter()
+    tottime = toc - tic
+    print(f'Total time: {tottime}')
+    maxrtdist_results = np.array(maxrtdist_results)
+    totdist_results = np.array(totdist_results)
+    avg_maxrt = np.mean(maxrtdist_results)
+    avg_totdist = np.mean(totdist_results)
+    print(f'Average max route distance: {avg_maxrt}')
+    print(f'Average total distance: {avg_totdist}')
 
-        with open('GLOP_routes'+str(vrp_size)+'.pkl', 'wb') as f:
-            pickle.dump(routeslist, f, pickle.HIGHEST_PROTOCOL)
+    with open('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\GLOP_routes_IL.pkl', 'wb') as f:
+        pickle.dump(routeslist, f, pickle.HIGHEST_PROTOCOL)

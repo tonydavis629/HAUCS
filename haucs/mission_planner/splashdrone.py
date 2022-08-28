@@ -1,15 +1,19 @@
 import socket
-import secrets
-
-#password for drone is 12345678
+import struct
+import os
 
 start = 0xa6 #start flag for splash
-src = 0x04 #ground control
-dest = 0x01 #flight control
-
 TCP_IP = '192.168.2.1' 
 TCP_PORT = 2022      
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 64
+own = 'SWP-BC06E4'
+baf = 'SWP-B27A58'
+new = 'SWP-BBB467'
+ROUTERS = [own,baf,new]
+
+
+SAVE_DIR = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\'
+ROUTE_TYPE = 'HPProutes'
 
 #message checksum computed by table lookup
 CRC8_Table =[
@@ -41,141 +45,317 @@ opcodes = {'FC_TASK_OC_TRAN_STR': 0x01, 'FC_TASK_OC_ADD':0x03, 'FC_TASK_OC_READ'
 msgids = {'Stat_Rep':0x1d, 'Mis_Ctrl':0x34, 'Ext_Ctrl':0x30, 'Way_Pt_Rep':0x31}
 
 task_type = {None:None,'FC_TSK_Null':0, 'FC_TSK_TakeOff':1, 'FC_TSK_Land':2, 
-             'FC_TSK_RTH':3, 'FC_TSK_SetHome':4, 'FC_TSK_SetPOI': 5, 'FC_TSK_DelPOI':6, 'FC_TSK_MOVE':7, 'FC_TSK_Gimbal':8, 'FC_TSK_SetEXTIO':9, 'FC_TSK_WayPoint':10, 'FC_TSK_SetSpeed':11, 'FC_TSK_SetALT':12, 'FC_TSK_WAIT_MS':15, 'FC_TSK_REPLAY':16, 'FC_TSK_CAMERA':17, 'FC_TSK_RESERVE':18, 'FC_TSK_CIRCLE':19}
+             'FC_TSK_RTH':3, 'FC_TSK_SetHome':4, 'FC_TSK_SetPOI': 5,
+             'FC_TSK_DelPOI':6, 'FC_TSK_MOVE':7, 'FC_TSK_Gimbal':8, 
+             'FC_TSK_SetEXTIO':9, 'FC_TSK_WayPoint':10, 'FC_TSK_SetSpeed':11, 
+             'FC_TSK_SetALT':12, 'FC_TSK_WAIT_MS':15, 'FC_TSK_REPLAY':16, 
+             'FC_TSK_CAMERA':17, 'FC_TSK_RESERVE':18, 'FC_TSK_CIRCLE':19}
 
 def CRC8_table_lookup(buffer, offset):
     # Calculate the CRC8 of the buffer
     crc = 0
     for i,_ in enumerate(buffer):
-        crc = CRC8_Table[crc ^ buffer[offset + i]]
+        crc = CRC8_Table[crc ^ buffer[i + offset]]
     return crc
 
-def make_payload(opcode,mis_id,task,task_data):
-    
-    if opcode == 'FC_TASK_OC_CLEAR' or 'FC_TASK_OC_STOP':
-        task_id = 0x00
-    elif opcode == 'FC_TASK_OC_TRAN_END':
-        task_id = 0xFF
-    else:
-        task_id = mis_id
+class splashdrone():
+    """
+    Control the splashdrone 4 with python. Default wifi password is 12345678.
+    """
+    def __init__(self): 
+        self.src = 0x04 #ground control
+        self.dest = 0x01 #flight control
+        self.task_id = 0 #initial task id
+        self.msgid = msgids['Mis_Ctrl'] #message ID
+
+    def clear_mission(self):     
+        opcode = 'FC_TASK_OC_CLEAR'
+        task = None
+        data = []
+
+        print('Clear mission queue')
+        self.send(opcode,task,data)
+
+    def start_tx(self):      
+        opcode = 'FC_TASK_OC_START'
+        task = None
+        data = []
+
+        print('Sending start')
+        self.send(opcode,task,data)
+
+    def end_tx(self):
+        opcode = 'FC_TASK_OC_TRAN_END'
+        task = None
+        data = []
+
+        print('End tx')
+        self.send(opcode,task,data)
+
+    def add_task(self,task:str,data:list):
+        opc = 'FC_TASK_OC_ADD'
+
+        self.send(opc,task,data)
+
+        self.task_id += 1
+
+    def execute(self):       
+        opc = 'FC_TASK_OC_START'
+        task = None
+        data = []
+
+        print('Executing mission')
+        self.send(opc,task,data)
+
+    def make_payload(self,opcode,task,task_data):      
+        if opcode == 'FC_TASK_OC_CLEAR' or opcode == 'FC_TASK_OC_STOP' or opcode == 'FC_TASK_OC_START':
+            self.task_id = 0x00
+        elif opcode == 'FC_TASK_OC_TRAN_END':
+            self.task_id = 0xFF
+            
+        payload = [opcodes[opcode],self.task_id,task_type[task]] + task_data
+        payload = [item for item in payload if item is not None]
         
-    payload = [opcodes[opcode],task_id,task_type[task],task_data]
-    payload = [item for item in payload if item is not None]
-    
-    return payload
+        return payload
 
-def send(msg):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((TCP_IP, TCP_PORT))
-    
-    if len(msg) == 8:
-        print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'Mis_id:', hex(msg[6]), 'Checksum:', hex(msg[-1]))
-    else:
-        print('Start:', hex(msg[0]), 'PackLength:', hex(msg[1]), 'MsgID:', hex(msg[2]), 'Src:', hex(msg[3]), 'Dest:', hex(msg[4]), 'Opcode:', hex(msg[5]), 'Mis_id:', hex(msg[6]), 'task_type:', hex(msg[7]), 'task_data:', hex(msg[8]), 'Checksum:', hex(msg[-1]))
+    def send(self,opc,task,data):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((TCP_IP, TCP_PORT))
+
+        payload = self.make_payload(opc,task,data)
         
-    s.send(msg)
-    ack = s.recv(BUFFER_SIZE) 
+        PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
+        
+        msg = [start,PackLength,self.msgid,self.src,self.dest] + payload
     
-    print('ACK:')
-    print([hex(i) for i in ack])
-    
-    if ack != msg:
-        print('ack not received')
-    s.close()
-    
-    
-def clear_mission():
+        checksum = CRC8_table_lookup(msg[1:], 0)
+        packet = msg + [checksum]
+        print([hex(item) for item in packet])
 
-    msgid = msgids['Mis_Ctrl']  #message ID
-    mis_id = 0x00
-    
-    opcode = 'FC_TASK_OC_CLEAR'
-    task_type = None
-    task_data = None
-    payload = make_payload(opcode,mis_id,task_type,task_data)
-    
-    PackLength = 6 + len(bytes(payload)) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
-    
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
-    print('Sending clear')
+        s.send(bytes(packet))
+        ack = s.recv(BUFFER_SIZE) 
+        
+        print('ACK:')
+        print([hex(i) for i in ack])
+        
+        s.close()
 
-    send(msg)
+    def wait(self,time:float):
+        task = 'FC_TSK_WAIT_MS'
+        time_ms = struct.pack('<I',int(time*1000))
+        data = list(time_ms)
+        print('Waiting for ' + str(time) + ' seconds')
+        self.add_task(task,data)
 
-def start_tx(mis_id):
-    msgid = msgids['Mis_Ctrl']  #message ID
+    def lights(self,state:bool):
+        task = 'FC_TSK_SetEXTIO'
+        ioSelect = 0x33
+        ioSelect = struct.pack('<i',ioSelect)
+        if state:
+            ioSet = 0x33
+        else:
+            ioSet = 0x00
+        ioSet = struct.pack('<i',ioSet)
+        data = list(ioSelect) + list(ioSet)
+        
+        print('Setting lights to ' + str(state))
+        self.add_task(task,data)
     
-    opcode = 'FC_TASK_OC_START'
-    task_type = None
-    task_data = None
-    payload = make_payload(opcode,mis_id,task_type,task_data)
-    
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
-    
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
-    print('Sending start')
-    send(msg)
+    def set_home(self,lat:float,long:float):
+        """
+        lat: latitude in 1e7 format
+        long: longitude in 1e7 format
+        """
+        task = 'FC_TSK_SetHome'
+        lat = round(lat * 1e7)
+        long = round(long * 1e7)
+        
+        lat_b = struct.pack('<i',lat) #little endian int32/int
+        long_b = struct.pack('<i',long)
+        data = list(lat_b) + list(long_b)
+        
+        print('Setting home to ' + str(lat) + ',' + str(long))
+        self.add_task(task,data)
+        
+    def takeoff(self,alt:int):
+        """
+        alt: altitude 0-65535 cm
+        """
+        task = 'FC_TSK_TakeOff'
+        alt_b = struct.pack('<h',alt) #little endian int16/short
+        data = list(alt_b)
+        
+        print('Taking off to ' + str(alt) + ' cm')
+        self.add_task(task,data)
+        
+    def land(self):
+        task = 'FC_TSK_Land'
+        data = []
+        print('Landing')
+        self.add_task(task,data)
+        
+    def set_speed(self,speed:int):
+        """
+        speed: 0-65535 cm/s 
+        """
+        task = 'FC_TSK_SetSpeed'
+        speed_b = struct.pack('<H',speed)
+        data = list(speed_b)
+        print('Setting speed to ' + str(speed) + ' cm/s')
+        self.add_task(task,data)
+        
+    def set_alt(self,alt:int):
+        """
+        alt: altitude 0-65535 cm
+        """
+        task = 'FC_TSK_SetALT'
+        alt_b = struct.pack('<h',alt)
+        data = list(alt_b)
+        print('Setting altitude to ' + str(alt) + ' cm')
+        self.add_task(task,data)
+        
+    def add_wp(self,lat:float=None,long:float=None,alt:int=None,speed:int=None,hovertime:int=None):
+        """
+        lat: latitude in 1e7 format
+        long: longitude in 1e7 format
+        alt: altitude 0-65535 cm
+        speed: 0-65535 cm/s
+        """
+        task = 'FC_TSK_WayPoint'
+        self.set_speed(speed)
+        self.set_alt(alt)
+        
+        hovertime_b = struct.pack('<H',hovertime)
+        
+        lat = round(lat * 1e7)
+        long = round(long * 1e7)
+        
+        lat_b = struct.pack('<i',lat) #little endian int32/int
+        long_b = struct.pack('<i',long)
+        
+        data = list(hovertime_b) + list(lat_b) + list(long_b)
+        print('Adding waypoint at ' + str(lat) + ',' + str(long))
+        self.add_task(task,data)
 
+    def return_home(self):
+        task = 'FC_TSK_RTH'
+        data = []
+        print('Returning home')
+        self.add_task(task,data)
 
-def add_mission(mis_id,opc,task,data):
-    msgid = msgids['Mis_Ctrl']  #message ID
+    def set_gimbal(self,roll:float,pitch:float,yaw:float):
+        """
+        roll: +/- 0-90 degrees
+        pitch: +/- 0-45 degrees
+        yawn: +/- 0-45 degrees
+        """
+        prev_dest = self.dest
+        self.dest = 0x03
 
-    payload = make_payload(opc,mis_id,task,data)
-    
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
-    
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
-    print('Sending start')
-    send(msg)
-    
-def exec_mission(mis_id):
-    msgid = msgids['Mis_Ctrl']  #message ID
-    
-    opcode = 'FC_TASK_OC_START'
-    task_type = None
-    task_data = None
-    payload = make_payload(opcode,mis_id,task_type,task_data)
-    
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
-    
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
-    print('Sending exec')
-    send(msg)
+        task = 'FC_TSK_SetGimbal'
+        roll_b = struct.pack('<h',roll)
+        pitch_b = struct.pack('<h',pitch)
+        yawn_b = struct.pack('<h',yaw)
+        
+        data = list(roll_b) + list(pitch_b) + list(yawn_b)
+        print('Setting gimbal roll, pitch, yaw to', + str(roll) + ',' + str(pitch) + ',' + str(yaw))
+        self.add_task(task,data)
+        
+        self.dest = prev_dest
 
-def end_tx(mis_id):
-    msgid = msgids['Mis_Ctrl']  #message ID
-    
-    opcode = 'FC_TASK_OC_TRAN_END'
-    task_type = None
-    task_data = None
-    payload = make_payload(opcode,mis_id,task_type,task_data)
-    
-    PackLength = 6 + len(payload) #6 bytes for start, packlength, msgid, src, dest, checksum
-    checksum = CRC8_table_lookup(payload, 0)
-    
-    msg = [start,PackLength,msgid,src,dest] + payload + [checksum]
-    msg = bytes(msg)
-    print('Sending end')
-    send(msg)
-    
+    def activate_payload(self):
+        task = 'FC_TSK_CAMERA'
+        data = struct.pack('<h',0x33)
+        data = list(data)
+        
+        print('Activating payload')
+        self.add_task(task,data)
+        
+        
+    def run(self,home:list,pts:list[list[float]], alt:int, speed:int, wait:int):
+        """
+        home: list of lat long for the home location
+        pts: list of list of lat longs for each point to visit
+        alt: altitude in cm 0-65355
+        speed: speed in cm/2 0-65355
+        wait: wait time between points in seconds
+        """
+        
+        self.takeoff(alt)
+        self.wait(wait)
+        
+        for pt in pts:
+            self.add_wp(pt[0],pt[1],alt,speed,wait)
+            sp.activate_payload()
+            self.land()
+            self.wait(30)
+            self.takeoff(alt)
+            sp.activate_payload()
+         
+        sp.add_wp(home[0],home[1],alt,speed,wait)
+        sp.land()
+        self.end_tx()
+        self.execute()
+        
+def load_pts(filename:str):
+    """
+    Loads a list of points from a file
+    """
+    with open(filename,'r') as f:
+        lines = f.readlines()
+        pts = []
+        for line in lines:
+            coord = line.strip('\n').split(',')
+            coord = [float(i) for i in coord]
+            pts.append(coord)
+    return pts
+
+def load_files(save_dir:str, route_name:str):
+    """
+    Load the text files of each route_name and return a list of routes
+    """
+    routes = []
+    i = 0
+    while True:
+        try:
+            pts = load_pts(save_dir + route_name + str(i) + '.txt')
+        except:
+            break
+        i += 1
+        routes.append(pts)    
+    return routes
+
+def wifi_connect(wifi_name:str):
+    """
+    Connect to a known wifi router. Only works in windows.
+    """
+    os.system('cmd /c "netsh wlan show networks"')
+    os.system(f'''cmd /c "netsh wlan connect name={wifi_name}"''')
+
 if __name__ == '__main__':
-    # script to take off and hover at 100 cm altitude
-
-    mis_id = hex(secrets.randbits(8))#hex(random.randint(128,255)) # 1 byte random mission ID
-    print('Mission ID:',mis_id)
+    sp = splashdrone()
     
-    clear_mission()
-    start_tx(mis_id)
-    task = 'FC_TSK_TakeOff'
-    opc = 'FC_TASK_OC_ACTION' #'FC_TASK_OC_ADD'
-    data = 100 #100 cm
-    add_mission(mis_id,opc,task,data)
-    exec_mission(mis_id)
-    end_tx(mis_id)
+
+    # routes = load_files(SAVE_DIR,ROUTE_TYPE)
+    # for i, route in enumerate(routes):
+        
+    #     wifi_connect(ROUTERS[i])
+        
+    #     home = route[0]
+    #     pts = route[1:]
+    #     alt = 300
+    #     speed = 200
+    #     wait = 4
+    #     sp.run(home,pts,alt,speed,wait)
+
+    
+    # pts = pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]] # pond
+    # home = [27.53553982543517, -80.35212724345607] # pond
+
+    pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
+    home = [27.53543337815902, -80.35211715513375] #land
+    alt = 300
+    speed = 200
+    wait = 4
+    sp.run(home,pts,alt,speed,wait)
+    
