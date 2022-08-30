@@ -333,6 +333,9 @@ def windows_wifi_connect(wifi_name:str):
     os.system('cmd /c "netsh wlan show networks"')
     os.system(f'''cmd /c "netsh wlan connect name={wifi_name}"''')
 
+def parse_report(ack:bytes):
+    pass
+
 if __name__ == '__main__':
     
     # wifis = [new,baf]

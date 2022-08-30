@@ -122,7 +122,7 @@ def initPondList():
     up table. Updates variables 'pond_list'
     """
     id=0
-    with open('pond_lut.csv', newline='') as csvfile:
+    with open('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\mission_planner\\pond_lut.csv', newline='') as csvfile:
         pondreader = csv.reader(csvfile,delimiter=',')  
         for row in pondreader:
             if (id>0):
@@ -167,13 +167,13 @@ print(findPond())
 # port = '/dev/cu.usbserial-2'
 header = ['time', 'numSat', 'speed', 'heading', 'lat', 'lng', 'alt']
 file = init_file(header)
-port = '/dev/cu.usbserial-0001'
+port = 'COM7'
 ser  = init_serial(port)
 
 
 ############ FIREBASE VARIABLES ####################
 #Store Key in separate file !!!
-cred = credentials.Certificate("fb_key.json")
+cred = credentials.Certificate("C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\mission_planner\\fb_key.json")
 firebase_admin.initialize_app(cred, {'databaseURL': 'https://haucs-monitoring-default-rtdb.firebaseio.com'})
 ref = db.reference('/ponds/')
 
