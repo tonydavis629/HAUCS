@@ -169,7 +169,7 @@ if __name__ == '__main__':
     # for vrp_size in [100]:
         # print(f'Solving for vrp_size: {vrp_size}')
     tic = time.perf_counter()
-    filename = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\GLOP_dataset_ILsmall.pkl'
+    filename = 'C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOP_dataset_IL.pkl'
     data = load_data_model(filename)
     data = data[0]
     data['distance_matrix'] = [[int(i) for i in row] for row in data['distance_matrix']]
@@ -193,5 +193,5 @@ if __name__ == '__main__':
     print(f'Average max route distance: {avg_maxrt}')
     print(f'Average total distance: {avg_totdist}')
 
-    with open('C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\GLOP_routes_IL.pkl', 'wb') as f:
+    with open('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOP_routes_IL.pkl', 'wb') as f:
         pickle.dump(routeslist, f, pickle.HIGHEST_PROTOCOL)

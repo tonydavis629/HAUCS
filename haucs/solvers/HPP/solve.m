@@ -1,5 +1,5 @@
 % load manually input ponds for live testing. Must be normalized first.
-ponds = load("C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\ILnormcoords.txt");
+ponds = load("C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\ILnormcoords.txt");
 ponds = ponds(2:end,:);
 depot = ponds(1,:);
 dist_mat = pdist2(ponds,ponds);
@@ -179,6 +179,6 @@ fprintf('avg_max_path = %f\n',avg_max_path)
 fprintf('time = %f\n',time)
 
 % routes = cell2mat(all_vehroute);
-mat2np(all_vehroute,'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\HPProutes.pkl','int8')
+mat2np(all_vehroute,'C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\HPProutes.pkl','int8')
 
 
