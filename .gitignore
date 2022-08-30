@@ -2,3 +2,4 @@ splash response
 haucs/mission_planner/test.py
 *.pyc
 *.egg-info
+haucs/mission_planner/fb_key.json
