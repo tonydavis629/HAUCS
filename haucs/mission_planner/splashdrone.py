@@ -1,13 +1,14 @@
 import socket
 import struct
 import os
+import time
 
 start = 0xa6 #start flag for splash
 TCP_IP = '192.168.2.1' 
 TCP_PORT = 2022      
 BUFFER_SIZE = 64
 own = 'SWP-BC06E4'
-baf = 'SWP-B27A58'
+baf = 'SWP-B27A5B'
 new = 'SWP-BBB467'
 ROUTERS = [own,baf,new]
 
@@ -325,7 +326,7 @@ def load_files(save_dir:str, route_name:str):
         routes.append(pts)    
     return routes
 
-def wifi_connect(wifi_name:str):
+def windows_wifi_connect(wifi_name:str):
     """
     Connect to a known wifi router. Only works in windows.
     """
@@ -333,8 +334,24 @@ def wifi_connect(wifi_name:str):
     os.system(f'''cmd /c "netsh wlan connect name={wifi_name}"''')
 
 if __name__ == '__main__':
-    sp = splashdrone()
     
+    # wifis = [new,baf]
+    # for i in wifis:
+    # windows_wifi_connect(own)
+
+    # time.sleep(2)
+
+    sp = splashdrone()
+    sp.clear_mission()
+    sp.start_tx()
+    
+    sp.lights(0)
+    sp.activate_payload()
+    sp.wait(30)
+    sp.activate_payload()
+    sp.lights(1)
+    sp.execute()
+    sp.end_tx()
 
     # routes = load_files(SAVE_DIR,ROUTE_TYPE)
     # for i, route in enumerate(routes):
@@ -352,10 +369,10 @@ if __name__ == '__main__':
     # pts = pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]] # pond
     # home = [27.53553982543517, -80.35212724345607] # pond
 
-    pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
-    home = [27.53543337815902, -80.35211715513375] #land
-    alt = 300
-    speed = 200
-    wait = 4
-    sp.run(home,pts,alt,speed,wait)
+    # pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
+    # home = [27.53543337815902, -80.35211715513375] #land
+    # alt = 300
+    # speed = 200
+    # wait = 4
+    # sp.run(home,pts,alt,speed,wait)
     
