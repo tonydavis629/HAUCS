@@ -332,6 +332,7 @@ def windows_wifi_connect(wifi_name:str):
     """
     os.system('cmd /c "netsh wlan show networks"')
     os.system(f'''cmd /c "netsh wlan connect name={wifi_name}"''')
+    time.sleep(5)
 
 def parse_report(ack:bytes):
     pass
@@ -339,43 +340,27 @@ def parse_report(ack:bytes):
 if __name__ == '__main__':
     
     # wifis = [new,baf]
-    # for i in wifis:
-    # windows_wifi_connect(own)
+    routes = [
+        [[37.63449620210455, -89.1754037115316],[37.6347965,-89.17560625],[37.63498625,-89.175597],[37.6345965, -89.17559475]],
+        [[37.634497767009385, -89.17554115582185],[37.6345862173764, -89.17434836505748],[37.63478588233057, -89.17436445831132],[37.63498975,	-89.174343]]
+    ]
+    # for i,w in enumerate(wifis):
+    # # routes = load_files(SAVE_DIR,ROUTE_TYPE)
+    # # for i, route in enumerate(routes):
 
-    # time.sleep(2)
+    windows_wifi_connect(own)
 
     sp = splashdrone()
-    sp.clear_mission()
-    sp.start_tx()
+
+    pts = routes[0]
     
-    sp.lights(0)
-    sp.activate_payload()
-    sp.wait(30)
-    sp.activate_payload()
-    sp.lights(1)
-    sp.execute()
-    sp.end_tx()
+    home = pts[0]
+    ponds = pts[1:]   
 
-    # routes = load_files(SAVE_DIR,ROUTE_TYPE)
-    # for i, route in enumerate(routes):
-        
-    #     wifi_connect(ROUTERS[i])
-        
-    #     home = route[0]
-    #     pts = route[1:]
-    #     alt = 300
-    #     speed = 200
-    #     wait = 4
-    #     sp.run(home,pts,alt,speed,wait)
+    alt = 700
+    speed = 200
+    wait = 4
+    sp.run(home,ponds,alt,speed,wait)
 
-    
-    # pts = pts = [[27.53545733286293, -80.35233656244517], [27.535471940927074, -80.35263697395594]] # pond
-    # home = [27.53553982543517, -80.35212724345607] # pond
-
-    # pts = [[27.53545969943153, -80.35221595445749],[27.53545969943153, -80.35251591853965]] #land
-    # home = [27.53543337815902, -80.35211715513375] #land
-    # alt = 300
-    # speed = 200
-    # wait = 4
-    # sp.run(home,pts,alt,speed,wait)
+    time.sleep(10)
     
