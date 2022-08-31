@@ -30,7 +30,7 @@ coords = np.loadtxt('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\
 # # run atsp/plot_vrp.ipynb
 # # # # # # # # GM # # # # # # # # 
 # # no depot in routes
-with open('GM_routes.pkl','rb') as routes:
+with open('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GM_routes.pkl','rb') as routes:
     all_routes = pickle.load(routes)
     all_routes = all_routes[0]
     8
