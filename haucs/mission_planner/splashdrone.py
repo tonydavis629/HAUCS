@@ -13,8 +13,8 @@ new = 'SWP-BBB467'
 ROUTERS = [own,baf,new]
 
 
-SAVE_DIR = 'C:\\Users\\anthonydavis2020\\Documents\\github\\HAUCS\\haucs\\'
-ROUTE_TYPE = 'HPProutes'
+SAVE_DIR = 'C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs'
+ROUTE_TYPE = 'HPProutes' #GMroutes #GLOProutes
 
 #message checksum computed by table lookup
 CRC8_Table =[
@@ -287,7 +287,7 @@ class splashdrone():
         
         for pt in pts:
             self.add_wp(pt[0],pt[1],alt,speed,wait)
-            self.add_wp(pt[0],pt[1],0,speed,2)
+            self.add_wp(pt[0],pt[1],200,speed,2)
             sp.activate_payload() #begin reading
             self.land()
             self.wait(20)
@@ -340,37 +340,31 @@ def parse_report(ack:bytes):
     pass
 
 if __name__ == '__main__':
-    sp = splashdrone()
 
     windows_wifi_connect(own)
+    sp = splashdrone()
     sp.clear_mission()
-    sp.start_tx()
-    sp.activate_payload()
-    sp.execute()
-    sp.end_tx()
     
     # wifis = [new,baf]
-    # routes = [
-    #     [[37.63449620210455, -89.1754037115316],[37.6345965, -89.17559475],[37.6347965,-89.17560625],[37.63498625,-89.175597]],
-    #     [[37.634497767009385, -89.17554115582185],[37.6345862173764, -89.17434836505748],[37.63478588233057, -89.17436445831132],[37.63498975,	-89.174343]]
-    # ]
+    routes = [
+        [[37.63449620210455, -89.1754037115316],[37.6345965, -89.17559475],[37.6347965,-89.17560625],[37.63498625,-89.175597]],
+        [[37.634497767009385, -89.17554115582185],[37.6345862173764, -89.17434836505748],[37.63478588233057, -89.17436445831132],[37.63498975,	-89.174343]]
+    ]
     # # for i,w in enumerate(wifis):
     # # # routes = load_files(SAVE_DIR,ROUTE_TYPE)
     # # # for i, route in enumerate(routes):
 
-    # windows_wifi_connect(own)
+    pts = routes[0]
 
+    # pts = load_pts('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOProutes1.txt')
 
+    home = pts[0]
+    ponds = pts[1:]   
 
-    # pts = routes[0]
-    
-    # home = pts[0]
-    # ponds = pts[1:]   
-
-    # alt = 700
-    # speed = 200
-    # wait = 4
-    # sp.run(home,ponds,alt,speed,wait)
+    alt = 700
+    speed = 200
+    wait = 4
+    sp.run(home,ponds,alt,speed,wait)
 
     # time.sleep(10)
     
