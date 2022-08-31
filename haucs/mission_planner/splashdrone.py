@@ -288,12 +288,12 @@ class splashdrone():
         for pt in pts:
             self.add_wp(pt[0],pt[1],alt,speed,wait)
             self.add_wp(pt[0],pt[1],200,speed,2)
-            sp.activate_payload() #begin reading
+            self.activate_payload() #begin reading
             self.land()
             self.wait(20)
             self.takeoff(alt)
+            self.activate_payload()
             self.wait(10) #to reconnect ble
-            sp.activate_payload()
          
         sp.add_wp(home[0],home[1],alt,speed,wait)
         sp.land()
@@ -341,30 +341,34 @@ def parse_report(ack:bytes):
 
 if __name__ == '__main__':
 
-    windows_wifi_connect(own)
-    sp = splashdrone()
-    sp.clear_mission()
     
-    # wifis = [new,baf]
-    routes = [
-        [[37.63449620210455, -89.1754037115316],[37.6345965, -89.17559475],[37.6347965,-89.17560625],[37.63498625,-89.175597]],
-        [[37.634497767009385, -89.17554115582185],[37.6345862173764, -89.17434836505748],[37.63478588233057, -89.17436445831132],[37.63498975,	-89.174343]]
-    ]
-    # # for i,w in enumerate(wifis):
+    wifis = [new]
+    # routes = [
+    #     [[37.63449620210455, -89.1754037115316],[37.6345965, -89.17559475],[37.6347965,-89.17560625],[37.63498625,-89.175597]],
+    #     [[37.634497767009385, -89.17554115582185],[37.6345862173764, -89.17434836505748],[37.63478588233057, -89.17436445831132],[37.63498975,	-89.174343]]
+    # ]
+    files = ['C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GMroutes2.txt']
+    for i,w in enumerate(wifis):
     # # # routes = load_files(SAVE_DIR,ROUTE_TYPE)
+        pts = load_pts(files[i])
+        windows_wifi_connect(w)
+        sp = splashdrone()
+        sp.clear_mission()
     # # # for i, route in enumerate(routes):
 
-    pts = routes[0]
+    # pts = routes[0]
 
-    # pts = load_pts('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOProutes1.txt')
+        # pts = load_pts('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GMroutes1.txt')
 
-    home = pts[0]
-    ponds = pts[1:]   
+        home = pts[0]
+        # home = adjust home so not on top of each other 
+        ponds = pts[1:]   
 
-    alt = 700
-    speed = 200
-    wait = 4
-    sp.run(home,ponds,alt,speed,wait)
+        alt = 700 #need to know elevation of each pond in order to deconflict airspace between drones and keep above ground
+        speed = 200
+        wait = 4
 
-    # time.sleep(10)
+        sp.run(home,ponds,alt,speed,wait)
+
+        time.sleep(10)
     
