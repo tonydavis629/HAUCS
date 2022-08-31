@@ -30,14 +30,14 @@ coords = np.loadtxt('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\
 # # run atsp/plot_vrp.ipynb
 # # # # # # # # GM # # # # # # # # 
 # # no depot in routes
-# with open('GM_routes.pkl','rb') as routes:
-#     all_routes = pickle.load(routes)
-#     all_routes = all_routes[0]
-    
-# for i, route in enumerate(all_routes):
-#     final_route = coords[route,:]
-#     final_route = np.insert(final_route,0,coords[0],axis=0) #insert depot
-#     np.savetxt('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GMroutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
+with open('GM_routes.pkl','rb') as routes:
+    all_routes = pickle.load(routes)
+    all_routes = all_routes[0]
+    8
+for i, route in enumerate(all_routes):
+    final_route = coords[route,:]
+    final_route = np.insert(final_route,0,coords[0],axis=0) #insert depot
+    np.savetxt('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GMroutes'+str(i)+'.txt',final_route,delimiter=',',fmt='%f')
     
     
 # # # # # # # # GLOP # # # # # # # # # 
