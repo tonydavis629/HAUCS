@@ -290,7 +290,7 @@ class splashdrone():
             self.add_wp(pt[0],pt[1],200,speed,2)
             self.activate_payload() #begin reading
             self.land()
-            self.wait(20)
+            self.wait(5)
             self.takeoff(alt)
             self.activate_payload()
             self.wait(10) #to reconnect ble
@@ -342,12 +342,14 @@ def parse_report(ack:bytes):
 if __name__ == '__main__':
 
     
-    wifis = [new]
+    wifis = [new,own]
     # routes = [
     #     [[37.63449620210455, -89.1754037115316],[37.6345965, -89.17559475],[37.6347965,-89.17560625],[37.63498625,-89.175597]],
     #     [[37.634497767009385, -89.17554115582185],[37.6345862173764, -89.17434836505748],[37.63478588233057, -89.17436445831132],[37.63498975,	-89.174343]]
     # ]
-    files = ['C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GMroutes2.txt']
+    files = [
+    'C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOProutes0.txt',
+    'C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOProutes1.txt']
     for i,w in enumerate(wifis):
     # # # routes = load_files(SAVE_DIR,ROUTE_TYPE)
         pts = load_pts(files[i])
