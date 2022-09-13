@@ -24,6 +24,7 @@ def save_norm_coords(coords, filename):
     """
     norm_arr = coord2arr(coords)
     np.savetxt(filename,norm_arr,delimiter=',',fmt='%f')
+    return norm_arr
 
 def arr2coord(ponds, coord_range):
     """

@@ -112,7 +112,7 @@ def print_solution(data, manager, routing, solution):
     return max_route_distance, total_distance
 
 
-def run(data):
+def main(data):
     """Entry point of the program."""
     # Instantiate the data problem.
 
@@ -165,11 +165,11 @@ def run(data):
     return max_route_dist, total_distance, routes
 
 
-def solve(datapath:str, output_routes:str):
+if __name__ == '__main__':
     # for vrp_size in [100]:
         # print(f'Solving for vrp_size: {vrp_size}')
     tic = time.perf_counter()
-    filename = datapath
+    filename = 'C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOP_dataset_IL.pkl'
     data = load_data_model(filename)
     data = data[0]
     data['distance_matrix'] = [[int(i) for i in row] for row in data['distance_matrix']]
@@ -178,7 +178,7 @@ def solve(datapath:str, output_routes:str):
     
     maxrtdist_results, totdist_results, routeslist = [],[],[]
     for sample in data:
-        max_route_dist, total_distance, routes = run(sample)
+        max_route_dist, total_distance, routes = main(sample)
         maxrtdist_results.append(max_route_dist)
         totdist_results.append(total_distance)
         routeslist.append(routes)
@@ -193,5 +193,5 @@ def solve(datapath:str, output_routes:str):
     print(f'Average max route distance: {avg_maxrt}')
     print(f'Average total distance: {avg_totdist}')
 
-    with open(output_routes, 'wb') as f:
+    with open('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOP_routes_IL.pkl', 'wb') as f:
         pickle.dump(routeslist, f, pickle.HIGHEST_PROTOCOL)
