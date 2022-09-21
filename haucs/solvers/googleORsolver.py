@@ -36,30 +36,30 @@ def create_data_model(vrp_size):
     return data
 
 
-def gen_results(data, manager, routing, solution):
-    """Generate results."""
-    # print(f'Objective: {solution.ObjectiveValue()}')
-    max_route_distance = 0
-    total_distance = 0
-    routes = []
-    for vehicle_id in range(data['num_vehicles']):
-        index = routing.Start(vehicle_id)
-        plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
-        route_distance = 0
-        while not routing.IsEnd(index):
-            plan_output += ' {} -> '.format(manager.IndexToNode(index))
-            previous_index = index
-            index = solution.Value(routing.NextVar(index))
-            route_distance += routing.GetArcCostForVehicle(
-                previous_index, index, vehicle_id)
-        plan_output += '{}\n'.format(manager.IndexToNode(index))
-        plan_output += 'Distance of the route: {}m\n'.format(route_distance)
-        # print(plan_output)
-        routes.append(plan_output)
-        max_route_distance = max(route_distance, max_route_distance)
-        total_distance += route_distance
-    # print('Maximum of the route distances: {}m'.format(max_route_distance))
-    return max_route_distance, total_distance, routes
+# def gen_results(data, manager, routing, solution):
+#     """Generate results."""
+#     # print(f'Objective: {solution.ObjectiveValue()}')
+#     max_route_distance = 0
+#     total_distance = 0
+#     routes = []
+#     for vehicle_id in range(data['num_vehicles']):
+#         index = routing.Start(vehicle_id)
+#         plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
+#         route_distance = 0
+#         while not routing.IsEnd(index):
+#             plan_output += ' {} -> '.format(manager.IndexToNode(index))
+#             previous_index = index
+#             index = solution.Value(routing.NextVar(index))
+#             route_distance += routing.GetArcCostForVehicle(
+#                 previous_index, index, vehicle_id)
+#         plan_output += '{}\n'.format(manager.IndexToNode(index))
+#         plan_output += 'Distance of the route: {}m\n'.format(route_distance)
+#         # print(plan_output)
+#         routes.append(plan_output)
+#         max_route_distance = max(route_distance, max_route_distance)
+#         total_distance += route_distance
+#     # print('Maximum of the route distances: {}m'.format(max_route_distance))
+#     return max_route_distance, total_distance, routes
 
 def gen_routes(data, manager, routing, solution):
     """Generate results."""
@@ -159,7 +159,7 @@ def run(data):
     # Print solution on console.
     if solution:
         max_route_dist, total_distance, routes = gen_routes(data, manager, routing, solution)
-        toc = time.perf_counter()
+        # toc = time.perf_counter()
     else:
         print('No solution found !')
     return max_route_dist, total_distance, routes
@@ -182,7 +182,7 @@ def solve(datapath:str, output_routes:str):
         maxrtdist_results.append(max_route_dist)
         totdist_results.append(total_distance)
         routeslist.append(routes)
-    print(routeslist)
+    # print(routeslist)
     toc = time.perf_counter()
     tottime = toc - tic
     print(f'Total time: {tottime}')
