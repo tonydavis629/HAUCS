@@ -1,0 +1,2 @@
+# Payload Software
+Our current payload sensing probe consists of a XIAO BLE NRF52840 circuit board with a YSI dissolved oxygen probe and Barometer/Temperature sensor. We currently have seperate code for the payload intended to be used on the drone `payload_field` and communicating with the topside controller as well as code intended for interfacing with a smartphone `payload_handheld`.
