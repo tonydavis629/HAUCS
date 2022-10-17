@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "633872598653",
+    "firebase_url": "https://haucs-monitoring-default-rtdb.firebaseio.com",
+    "project_id": "haucs-monitoring",
+    "storage_bucket": "haucs-monitoring.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:633872598653:android:7a29fdfd53c2e258525314",
+        "android_client_info": {
+          "package_name": "com.example.fishfirm1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "633872598653-160176sfqgppub1hj2bq9j5n60b2b7ie.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSiLMiDt4NJa5nyzVywe-fuUYPOimnsj4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "633872598653-160176sfqgppub1hj2bq9j5n60b2b7ie.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:backgroundTintMode="src_atop"
+    tools:context="com.example.fishfirm1.DetailsActivity">
+
+    <Button
+        android:id="@+id/button_do"
+        android:layout_width="280dp"
+        android:layout_height="160dp"
+        android:layout_marginStart="151dp"
+        android:layout_marginTop="109dp"
+        android:gravity="center"
+        android:text="60%"
+        android:textColor="@color/black"
+        android:textSize="50dp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/button_temp"
+        android:layout_width="280dp"
+        android:layout_height="160dp"
+        android:layout_marginTop="109dp"
+        android:layout_marginEnd="152dp"
+        android:layout_marginBottom="44dp"
+        android:gravity="center"
+        android:text="17°C"
+        android:textColor="@color/black"
+        android:textSize="50dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textView11"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="249dp"
+        android:layout_height="62dp"
+        android:layout_marginStart="171dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="157dp"
+        android:gravity="center"
+        android:text="TEMPERATURE"
+        android:textSize="30dp"
+        android:textStyle="bold"
+
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.984"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_temp" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="249dp"
+        android:layout_height="62dp"
+        android:layout_marginStart="165dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="157dp"
+        android:gravity="center"
+        android:text="DO STATUS"
+        android:textSize="30dp"
+        android:textStyle="bold"
+
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_temp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="191dp"
+        android:layout_height="65dp"
+        android:layout_marginBottom="44dp"
+        android:text="POND 8"
+        android:textSize="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/button_do"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.595" />
+</androidx.constraintlayout.widget.ConstraintLayout>
