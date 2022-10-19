@@ -29,7 +29,8 @@ int initial_DO = -1;
 
 //////////////// SAMPLING PARAMETERS ///////////////////////
 int numSamples = 3;
-unsigned long samplingTimeMax = 20000; //20 second duration
+unsigned long firstSampleDelay = 30000; //30 second initial delay
+unsigned long samplingTimeMax = 10000; //10 second duration
 /////////////// SAMPLING VARIABLES ////////////////////////
 unsigned long samplingTime = 0;
 int sampleState = 0;
@@ -124,12 +125,20 @@ void loop() {
   
   ////////////////// Handle Sampling //////////////////
   if ((sampleState <= numSamples) && (sampleState > 0)) {
-    if((millis() - samplingTime) > samplingTimeMax){
-      samplingTime = millis();
-      updateSensorData(sampleState); 
-      sampleState += 1;
-      
+    if (sampleState == 1){
+      if((millis() - samplingTime) > firstSampleDelay){
+        samplingTime = millis();
+        updateSensorData(sampleState);
+        sampleState += 1;
       }
+    }
+    else{
+      if((millis() - samplingTime) > samplingTimeMax){
+        samplingTime = millis();
+        updateSensorData(sampleState); 
+        sampleState += 1;
+        }
+    }
     }
 }
 void updateSensorData(int sampleState) // sampling one time
