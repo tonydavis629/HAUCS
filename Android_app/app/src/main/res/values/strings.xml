@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Fishfirm1</string>
+    <string name="p1">P1</string>
+    <string name="p2">P2</string>
+    <string name="pond_2">Pond 2</string>
+    <string name="temperature">Temperature:</string>
+    <string name="dissolved_oxygen">Dissolved Oxygen:</string>
+    <string name="pond_1">Pond 1</string>
+    <string name="pond1">pond1</string>
+    <string name="screen_5">Screen 5</string>
+    <string name="p6">P6</string>
+    <string name="pond_9">pond 9</string>
+    <string name="todo">TODO</string>
+    <string name="risky">RISKY</string>
+    <string name="danger">DANGER</string>
+    <string name="toto">toto</string>
+    <string name="pond_view">POND VIEW</string>
+</resources>
