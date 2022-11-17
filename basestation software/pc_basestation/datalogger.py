@@ -174,9 +174,9 @@ ser  = init_serial(port)
 
 ############ FIREBASE VARIABLES ####################
 #Store Key in separate file !!!
-cred = credentials.Certificate("fb_key.json")
-firebase_admin.initialize_app(cred, {'databaseURL': 'https://haucs-monitoring-default-rtdb.firebaseio.com'})
-ref = db.reference('/ponds/')
+# cred = credentials.Certificate("fb_key.json")
+# firebase_admin.initialize_app(cred, {'databaseURL': 'https://haucs-monitoring-default-rtdb.firebaseio.com'})
+# ref = db.reference('/ponds/')
 
 
 ############ GLOBAL VARIABLES #####################
