@@ -165,7 +165,8 @@ print(findPond())
 
 ############# SERIAL PORT VARIABLES ################
 # port = '/dev/cu.usbserial-2'
-header = ['time', 'numSat', 'speed', 'heading', 'lat', 'lng', 'alt']
+# header = ['time', 'numSat', 'speed', 'heading', 'lat', 'lng', 'alt']
+header = ['time', 'value0', 'value1', 'value2', 'value3', 'value4', 'value5', 'value6', 'value7', 'value8', 'value9']
 file = init_file(header)
 port = '/dev/cu.usbserial-0001'
 ser  = init_serial(port)
@@ -211,17 +212,29 @@ while True:
 
                     #handle gps data logging
                     t_gps = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                    writeCSV(file, t_gps, list(gps_data.values()))
+                    # writeCSV(file, t_gps, list(gps_data.values()))
 
                 elif message[0] == "SENSOR_DATA":
                     sensor_data = processSensor(message)
+                    t = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
                     print(sensor_data)
+                    #store data locally
+                    data_for_csv = []
+                    i = 1
+                    while i < len(message):
+                        data_for_csv.append(message[i + 1] + ' ' + message[i + 3] + ' ' + message[i + 5])
+                        i += 6
+                    writeCSV(file, t, data_for_csv)
+                    print("wrote csv")
                     sensor_updated = True
 
-    if gps_updated and sensor_updated:
-        gps_updated = False
-        sensor_updated = False
-        uploadData(gps_data, sensor_data, timestamp)
+    # if  sensor_updated:
+    #     gps_updated = False
+    #     sensor_updated = False
+    #     try:
+    #         uploadData(gps_data, sensor_data, timestamp)
+    #     except:
+    #         print("Tried and Failed to Upload to Database.")
 
 
 
