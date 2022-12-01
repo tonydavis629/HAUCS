@@ -24,9 +24,9 @@ A number of algorithms have been designed to solve this type of problem, commonl
 
 HAUCS Path Planning Algorithm (HPP) [1][2] 
 
-Graph Attention Transformer Model (GAM) [2]
+Graph Attention Transformer Model (GAM) [3]
 
-Google Linear Optimization Package (GLOP) [3]
+Google Linear Optimization Package (GLOP) [4]
 
 We compare them on simulated and field data to determine the most appropriate for our purpose. So far, our results and testing indicate that HPP is best for large scale farms (>200 ponds), while GLOP and GAM are best for smaller farms (<200 ponds).
 
