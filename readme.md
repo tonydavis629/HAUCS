@@ -32,11 +32,11 @@ We compare them on simulated and field data to determine the most appropriate fo
 
 ## Sensor software
 
-Code controlling the various sensors on the HAUCS drones are included in `payload software`, `topside software`, and `basestation software`.
+Code controlling the various sensors on the HAUCS drones are included in `payload`, `topside`, and `basestation`.
 
 ## Android
 
-Firebase is used as the cloud platform for managing the pond data. Code for the Firebase instance and its Android application are found in `Android_app`.
+Firebase is used as the cloud platform for managing the pond data. Code for the Firebase instance and its Android application are found in `mobile_app`.
 
 ## References
 
