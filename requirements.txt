@@ -1,0 +1,8 @@
+firebase_admin==6.0.1
+matplotlib==3.6.2
+numpy==1.23.5
+ortools==9.4.1874
+pyserial==3.5
+scipy==1.9.3
+setuptools==61.2.0
+Shapely==1.8.5.post1
