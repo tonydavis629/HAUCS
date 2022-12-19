@@ -54,6 +54,7 @@ class ponds(polygon):
         self.polygon = polygon
         self.depot_loc = self.depot_loc()
         self.loc = self.pond_loc()
+        self.wind_pts = self.wind_cost()
         self.distance_matrix = self.distance_matrix()
         self.spacing = .8/(np.sqrt(self.num_pts/self.polygon.area))
         self.vertices = vertices
@@ -96,6 +97,12 @@ class ponds(polygon):
         
         pond_loc_array = np.array([x,y]).T.tolist()
         return pond_loc_array
+    
+    def wind_cost(self):
+        """
+        Takes into the additional cost of the wind on traversing between ponds in a certain direction
+        """
+        return self.loc
 
     def distance_matrix(self):
         """
@@ -119,6 +126,15 @@ class ponds(polygon):
         loc = np.array(self.loc)
         plt.plot(loc[:,0], loc[:,1], '.')
         plt.show(block=False)
+        
+    def plot_wind(self):
+        """
+        Plot points as if they were further apart because of the wind
+        """
+        plt.figure()
+        loc = np.array(self.wind_cost())
+        plt.plot(loc[:,0], loc[:,1], '.')
+        plt.show(block=False)
 
 def dist_matrix(loc):
     """
@@ -138,13 +154,14 @@ class PondsDataset(ponds):
     """
     Build PondsDataset which is used to simulate multiple farms. Each farm is made from a ponds object.
     """
-    def __init__(self, farms, num_pts, xlims, ylims):
+    def __init__(self, farms, num_pts, xlims, ylims, wind=False):
         self.farms = farms
         self.num_pts = num_pts
         self.num_vrtx = 3
         self.xlims = xlims
         self.ylims = ylims
         self.data = self.build_data()
+        self.wind = wind
 
     def build_data(self):
         dataset = []
@@ -164,7 +181,10 @@ class PondsDataset(ponds):
         for farm in self.data:
             vertices.append(farm.vertices)
             depot.append(farm.depot_loc)
-            loc.append(farm.loc)
+            if self.wind == True:
+                loc.append(farm.wind_loc)
+            else:
+                loc.append(farm.loc)
             spacing.append(farm.spacing)
         return (vertices, depot, loc, spacing)
 
@@ -175,7 +195,10 @@ class PondsDataset(ponds):
             depot = farm.depot_loc
             demand = np.ones(self.num_pts)
             capacity = (self.num_pts/5) + 1
-            dataset.append((depot, farm.loc, demand, capacity))
+            if self.wind == True:
+                dataset.append((depot, farm.wind_loc, demand, capacity))
+            else:
+                dataset.append((depot, farm.loc, demand, capacity))
         return dataset
     
     def load_ATSP_dataset(self):
@@ -189,7 +212,10 @@ class PondsDataset(ponds):
     def build_GLOP_dataset(self):
         dataset = []
         for farm in self.data:
-            nodes = np.array(farm.loc)
+            if self.wind == True:
+                nodes = np.array(farm.wind_loc)
+            else:
+                nodes = np.array(farm.loc)
             depot = farm.depot_loc
             node_depot = np.insert(nodes, 0, depot, axis=0)
             

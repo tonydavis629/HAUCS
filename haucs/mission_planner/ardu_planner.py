@@ -1,6 +1,8 @@
 from logging import raiseExceptions
 import os
 
+# This code was unused in our experiements, but it is a good example of how to use the ArduPilot MissionPlanner API
+
 def cord2ardu_wp(cord, alt):
     """
     Takes in a coordinate and outputs a waypoint for ArduPilot MissionPlanner
