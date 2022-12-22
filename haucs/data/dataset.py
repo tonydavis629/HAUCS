@@ -102,7 +102,18 @@ class ponds(polygon):
         """
         Takes into the additional cost of the wind on traversing between ponds in a certain direction
         """
-        return self.loc
+        x_locs = np.array(self.loc)[:,0]
+        y_locs = np.array(self.loc)[:,1]
+        wind_dir = np.random.random(1)[0]*2*np.pi
+        wind_vel = np.random.random(1)[0]*2
+        coeff = 1
+        wind_x = np.cos(wind_dir)*wind_vel*coeff
+        wind_y = np.sin(wind_dir)*wind_vel*coeff
+        wind_x_locs = x_locs+wind_x*x_locs
+        wind_y_locs = y_locs+wind_y*y_locs
+        wind_locs = np.array([wind_x_locs, wind_y_locs]).T
+        return wind_locs.tolist()
+        
 
     def distance_matrix(self):
         """
@@ -125,6 +136,8 @@ class ponds(polygon):
         plt.figure()
         loc = np.array(self.loc)
         plt.plot(loc[:,0], loc[:,1], '.')
+        plt.xlim(-1,1)
+        plt.ylim(-1,1)
         plt.show(block=False)
         
     def plot_wind(self):
@@ -132,8 +145,10 @@ class ponds(polygon):
         Plot points as if they were further apart because of the wind
         """
         plt.figure()
-        loc = np.array(self.wind_cost())
+        loc = np.array(self.wind_pts)
         plt.plot(loc[:,0], loc[:,1], '.')
+        plt.xlim(-1,1)
+        plt.ylim(-1,1)
         plt.show(block=False)
 
 def dist_matrix(loc):
@@ -171,7 +186,6 @@ class PondsDataset(ponds):
             ponddata = ponds(num_pts=self.num_pts, polygon=multipoly, vertices=vertices)
             dataset.append(ponddata)
         return dataset
-        
 
     def build_HPP_dataset(self):
         vertices = []
@@ -188,7 +202,6 @@ class PondsDataset(ponds):
             spacing.append(farm.spacing)
         return (vertices, depot, loc, spacing)
 
-
     def build_ATSP_dataset(self):
         dataset = []
         for farm in self.data:
@@ -201,14 +214,6 @@ class PondsDataset(ponds):
                 dataset.append((depot, farm.loc, demand, capacity))
         return dataset
     
-    def load_ATSP_dataset(self):
-        dataset = []
-        depot = self.data[0]
-        demand = np.ones(len(self.data)-1)
-        capacity = (len(self.data)/3) + 1 # 3 drones
-        dataset.append((depot, self.data[1:], demand, capacity))
-        return dataset
-
     def build_GLOP_dataset(self):
         dataset = []
         for farm in self.data:
@@ -225,6 +230,14 @@ class PondsDataset(ponds):
             farm_dic = {'distance_matrix': dm, 'depot': 0, 'num_vehicles' : 5 }
 
             dataset.append(farm_dic)
+        return dataset
+
+    def load_ATSP_dataset(self):
+        dataset = []
+        depot = self.data[0]
+        demand = np.ones(len(self.data)-1)
+        capacity = (len(self.data)/3) + 1 # 3 drones
+        dataset.append((depot, self.data[1:], demand, capacity))
         return dataset
     
     def load_GLOP_dataset(self):

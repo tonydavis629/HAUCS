@@ -9,4 +9,5 @@ pp = ponds(num_pts=400,polygon=multipoly, vertices=vertices) #first pond is home
 
 
 pp.plot_wind()
+pp.plot_pts()
 plt.show()
