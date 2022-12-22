@@ -1,15 +1,15 @@
 tic
 
 num_drones = 5;
-makeplot = true;
+makeplot = false;
 
 total_cost_all=zeros(size(ponds,1),1);
 max_path_cost_all = zeros(size(ponds,1),1);
 all_vehroute = cell(size(ponds,1),1);
 itt = 21;
 
-% for iter=1:size(ponds,1)
-for iter=itt:1:itt
+for iter=1:size(ponds,1)
+% for iter=itt:1:itt
 %     disp(iter)
 % for iter=23:1:23
       

@@ -164,17 +164,22 @@ def main(data):
         print('No solution found !')
     return max_route_dist, total_distance, routes
 
+def convert_list_values_to_int(dict_list):
+    for d in dict_list:
+        for k, v in d.items():
+            if isinstance(v, list):
+                d[k] = [[int(j) for j in i] for i in v]
+    return dict_list
 
 if __name__ == '__main__':
     # for vrp_size in [100]:
         # print(f'Solving for vrp_size: {vrp_size}')
-    tic = time.perf_counter()
-    filename = 'C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOP_dataset_IL.pkl'
+    
+    filename = '/home/tony/github/HAUCS/haucs/solvers/GLOP_dataset50.pkl'
     data = load_data_model(filename)
-    data = data[0]
-    data['distance_matrix'] = [[int(i) for i in row] for row in data['distance_matrix']]
-    data = [data]
-    # data = load_data_model(filename)
+    data = convert_list_values_to_int(data)
+    tic = time.perf_counter()
+
     
     maxrtdist_results, totdist_results, routeslist = [],[],[]
     for sample in data:

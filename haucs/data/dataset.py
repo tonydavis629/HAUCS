@@ -54,7 +54,7 @@ class ponds(polygon):
         self.polygon = polygon
         self.depot_loc = self.depot_loc()
         self.loc = self.pond_loc()
-        self.wind_pts = self.wind_cost()
+        self.wind_loc = self.wind_cost()
         self.distance_matrix = self.distance_matrix()
         self.spacing = .8/(np.sqrt(self.num_pts/self.polygon.area))
         self.vertices = vertices
@@ -105,10 +105,9 @@ class ponds(polygon):
         x_locs = np.array(self.loc)[:,0]
         y_locs = np.array(self.loc)[:,1]
         wind_dir = np.random.random(1)[0]*2*np.pi
-        wind_vel = np.random.random(1)[0]*2
-        coeff = 1
-        wind_x = np.cos(wind_dir)*wind_vel*coeff
-        wind_y = np.sin(wind_dir)*wind_vel*coeff
+        wind_vel = np.random.random(1)[0]
+        wind_x = np.cos(wind_dir)*wind_vel
+        wind_y = np.sin(wind_dir)*wind_vel
         wind_x_locs = x_locs+wind_x*x_locs
         wind_y_locs = y_locs+wind_y*y_locs
         wind_locs = np.array([wind_x_locs, wind_y_locs]).T
@@ -145,7 +144,7 @@ class ponds(polygon):
         Plot points as if they were further apart because of the wind
         """
         plt.figure()
-        loc = np.array(self.wind_pts)
+        loc = np.array(self.wind_loc)
         plt.plot(loc[:,0], loc[:,1], '.')
         plt.xlim(-1,1)
         plt.ylim(-1,1)

@@ -6,3 +6,5 @@ haucs/mission_planner/test.py
 *fb_key.json
 *.vscode
 *.DS_store
+*.pkl
+*.mat

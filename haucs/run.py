@@ -4,6 +4,8 @@ from haucs.utils.load_data import load
 from haucs.solvers.googleORsolver import solve
 from haucs.utils.save_routes import save
 
+# I used this to run the solvers on the SIU aquaculture ponds by manually loading the coordinates into a .txt file
+
 #load the coordinates of the ponds
 coords = np.loadtxt('/home/tony/github/HAUCS/haucs/pondsfull.txt')
 
