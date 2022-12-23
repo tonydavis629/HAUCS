@@ -36,30 +36,30 @@ def create_data_model(vrp_size):
     return data
 
 
-# def gen_results(data, manager, routing, solution):
-#     """Generate results."""
-#     # print(f'Objective: {solution.ObjectiveValue()}')
-#     max_route_distance = 0
-#     total_distance = 0
-#     routes = []
-#     for vehicle_id in range(data['num_vehicles']):
-#         index = routing.Start(vehicle_id)
-#         plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
-#         route_distance = 0
-#         while not routing.IsEnd(index):
-#             plan_output += ' {} -> '.format(manager.IndexToNode(index))
-#             previous_index = index
-#             index = solution.Value(routing.NextVar(index))
-#             route_distance += routing.GetArcCostForVehicle(
-#                 previous_index, index, vehicle_id)
-#         plan_output += '{}\n'.format(manager.IndexToNode(index))
-#         plan_output += 'Distance of the route: {}m\n'.format(route_distance)
-#         # print(plan_output)
-#         routes.append(plan_output)
-#         max_route_distance = max(route_distance, max_route_distance)
-#         total_distance += route_distance
-#     # print('Maximum of the route distances: {}m'.format(max_route_distance))
-#     return max_route_distance, total_distance, routes
+def gen_results(data, manager, routing, solution):
+    """Generate results."""
+    # print(f'Objective: {solution.ObjectiveValue()}')
+    max_route_distance = 0
+    total_distance = 0
+    routes = []
+    for vehicle_id in range(data['num_vehicles']):
+        index = routing.Start(vehicle_id)
+        plan_output = 'Route for vehicle {}:\n'.format(vehicle_id)
+        route_distance = 0
+        while not routing.IsEnd(index):
+            plan_output += ' {} -> '.format(manager.IndexToNode(index))
+            previous_index = index
+            index = solution.Value(routing.NextVar(index))
+            route_distance += routing.GetArcCostForVehicle(
+                previous_index, index, vehicle_id)
+        plan_output += '{}\n'.format(manager.IndexToNode(index))
+        plan_output += 'Distance of the route: {}m\n'.format(route_distance)
+        # print(plan_output)
+        routes.append(plan_output)
+        max_route_distance = max(route_distance, max_route_distance)
+        total_distance += route_distance
+    # print('Maximum of the route distances: {}m'.format(max_route_distance))
+    return max_route_distance, total_distance, routes
 
 def gen_routes(data, manager, routing, solution):
     """Generate results."""
@@ -112,7 +112,7 @@ def print_solution(data, manager, routing, solution):
     return max_route_distance, total_distance
 
 
-def run(data):
+def main(data):
     """Entry point of the program."""
     # Instantiate the data problem.
 
@@ -159,26 +159,37 @@ def run(data):
     # Print solution on console.
     if solution:
         max_route_dist, total_distance, routes = gen_routes(data, manager, routing, solution)
-        # toc = time.perf_counter()
+        toc = time.perf_counter()
     else:
         print('No solution found !')
     return max_route_dist, total_distance, routes
 
+def convert_list_values_to_int(dict_list):
+    for d in dict_list:
+        for k, v in d.items():
+            if isinstance(v, list):
+                d[k] = [[int(j) for j in i] for i in v]
+    return dict_list
 
-def solve(datapath:str, output_routes:str):
+if __name__ == '__main__':
     # for vrp_size in [100]:
         # print(f'Solving for vrp_size: {vrp_size}')
-    tic = time.perf_counter()
-    filename = datapath
+    
+    filename = '/home/tony/github/HAUCS/haucs/solvers/GLOP_dataset200.pkl'
     data = load_data_model(filename)
-    data = data[0]
-    data['distance_matrix'] = [[int(i) for i in row] for row in data['distance_matrix']]
-    data = [data]
-    # data = load_data_model(filename)
+    data = convert_list_values_to_int(data)
+    data.pop(16)
+    data.pop(23)
+    data.pop(31) 
+    data.pop(37)#?
+    tic = time.perf_counter()
     
     maxrtdist_results, totdist_results, routeslist = [],[],[]
-    for sample in data:
-        max_route_dist, total_distance, routes = run(sample)
+    for i,sample in enumerate(data):
+        print(i)
+        if i >= 40:
+            break
+        max_route_dist, total_distance, routes = main(sample)
         maxrtdist_results.append(max_route_dist)
         totdist_results.append(total_distance)
         routeslist.append(routes)
@@ -193,5 +204,5 @@ def solve(datapath:str, output_routes:str):
     print(f'Average max route distance: {avg_maxrt}')
     print(f'Average total distance: {avg_totdist}')
 
-    with open(output_routes, 'wb') as f:
+    with open('C:\\Users\\coral-computer\\Documents\\github\\HAUCS\\haucs\\GLOP_routes_IL.pkl', 'wb') as f:
         pickle.dump(routeslist, f, pickle.HIGHEST_PROTOCOL)

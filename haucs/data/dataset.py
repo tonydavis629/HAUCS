@@ -84,7 +84,7 @@ class ponds(polygon):
         points = MultiPoint(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
         MP = points.intersection(self.polygon)
 
-        loc = [(pt.x, pt.y) for pt in MP]
+        loc = [(pt.x, pt.y) for pt in MP.geoms]
 
         while len(loc) > pts:
             loc.pop(np.random.randint(0, len(loc)))
