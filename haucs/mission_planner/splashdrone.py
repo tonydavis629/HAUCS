@@ -271,9 +271,8 @@ class splashdrone():
         
         print('Activating payload')
         self.add_task(task,data)
-        
-        
-    def run(self,home:list,pts:list[list[float]], alt:int, speed:int, wait:int):
+                
+    def run(self,home:list,pts:list, alt:int, speed:int, wait:int):
         """
         home: list of lat long for the home location
         pts: list of list of lat longs for each point to visit
@@ -295,8 +294,8 @@ class splashdrone():
             self.activate_payload()
             self.wait(10) #to reconnect ble
          
-        sp.add_wp(home[0],home[1],alt,speed,wait)
-        sp.land()
+        self.add_wp(home[0],home[1],alt,speed,wait)
+        self.land()
         self.end_tx()
         self.execute()
         
